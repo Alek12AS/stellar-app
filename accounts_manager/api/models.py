@@ -32,5 +32,6 @@ class AccountUser(models.Model):
     weight = models.IntegerField(null=False, default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+
+    account = models.ManyToManyField(Account)
     
