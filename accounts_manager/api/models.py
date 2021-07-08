@@ -14,6 +14,9 @@ def generate_unique_code():
 class Account(models.Model):
     code = models.CharField(max_length=8,null=False , default=False, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    high_weight = models.IntegerField(null=False, default=False)
+    medium_weight = models.IntegerField(null=False, default=False)
+    low_weight = models.IntegerField(null=False, default=False)
 
 class Token(models.Model):
     code = models.CharField(max_length=12, default='', unique=True)
@@ -25,7 +28,7 @@ class Token(models.Model):
 class AccountUser(models.Model):
     public_key = models.CharField(max_length=56,null=False, unique=True)
     name = models.CharField(max_length=1000, blank=True)
-    email = models.EmailField(max_length=254, blank=True)
+    email = models.EmailField(max_length=255, blank=True)
     weight = models.IntegerField(null=False, default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
