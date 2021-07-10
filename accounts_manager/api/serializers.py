@@ -14,5 +14,9 @@ class TokenSerializer(serializers.ModelSerializer):
 class AccountUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountUser
-        fields = ('id', 'public_key', 'name', 'email', 'weight', 'created_at', 'account')
-    
+        fields = ('name', 'public_key')
+
+class CreateKeysSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountUser
+        fields = ('name','public_key')
