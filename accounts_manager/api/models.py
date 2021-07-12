@@ -23,7 +23,7 @@ class Token(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
 
 class AccountUser(models.Model):
-    public_key = models.CharField(max_length=56,null=False, unique=True)
     name = models.CharField(max_length=1000, blank=True)
+    public_key = models.CharField(max_length=56,null=False, unique=True)
 
     
