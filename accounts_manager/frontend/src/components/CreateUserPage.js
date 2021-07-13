@@ -8,12 +8,11 @@ import { FormControl } from '@material-ui/core';
 import { Keypair } from "stellar-sdk";
 import sjcl from 'sjcl';
 
-export default class CreateAccountPage extends Component {
+export default class CreateUserPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
             name: "",
-            public_key: "",
             pass:"",
             confirmPass:"",
         };
@@ -47,27 +46,29 @@ export default class CreateAccountPage extends Component {
 
     }
 
-    handleCreateButtonPressed() {
-        
-        const keypair = Keypair.random();
-        this.setState({
-            public_key: keypair.publicKey(), 
-        });
 
-        localStorage.setItem(this.state.public_key,sjcl.encrypt(this.state.pass,keypair.secret()));
+    handleCreateButtonPressed() {
+
+        const keypair = Keypair.random();
+        const pk = keypair.publicKey();
+
+        localStorage.setItem(pk,sjcl.encrypt(this.state.pass,keypair.secret()));
+
+        console.log(this.state.name);
 
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
                 name: this.state.name,
-                public_key: this.state.public_key,
+                public_key: pk,
             }),
         };
         
         fetch('/api/create-user', requestOptions)
         .then((response) => response.json())
-        .then((data) => console.log(data));
+        .then((data) => this.props.history.push('/user/' + data.public_key));
+
 
     };
 
@@ -85,7 +86,7 @@ export default class CreateAccountPage extends Component {
             <Grid container spacing={1}>
                 <Grid item xs={12} align="center">
                     <Typography component="h4" variant="h4">
-                        Create a key pair
+                        Create a KeyPair
                     </Typography>
                 </Grid>
                 <Grid item xs={12} align="center">
