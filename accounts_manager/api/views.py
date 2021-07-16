@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from rest_framework import generics, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from .serializers import *
 from .models import Account, AccountUser, Token
-from rest_framework.views import APIView
-from rest_framework.response import Response
 
 
 # Create your views here.

@@ -1,4 +1,7 @@
+import { Grid } from '@material-ui/core';
+import Button from "@material-ui/core/Button"
 import React, {Component} from 'react';
+import { Link } from 'react-router';
 
 export default class UserPage extends Component {
     constructor(props) {
@@ -9,7 +12,7 @@ export default class UserPage extends Component {
         };
 
         this.public_key = this.props.match.params.public_key;
-        this.getUserDetails();
+
     }
 
     getUserDetails() {
@@ -22,9 +25,22 @@ export default class UserPage extends Component {
     }
     
     render() {
-        return <div>
+        return( <div>
             <h3> Name: {this.state.name} </h3>
             <p> Public key: {this.public_key} </p>
-        </div>
+
+            <Grid container spacing={1}>
+                <Grid item xs={12} align="center">
+                    <Button color="secondary" 
+                    variant="contained"
+                    onClick={this.handleCreateButtonPressed}
+                    to={"/create-account/"}
+                    Component={Link}
+                    >
+                        Create an Account
+                    </Button>
+                </Grid>
+            </Grid>
+        </div>);
     }
 }

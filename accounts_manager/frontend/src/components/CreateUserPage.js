@@ -83,6 +83,7 @@ export default class CreateUserPage extends Component {
 
     render() {
         return ( 
+            <div class="center">
             <Grid container spacing={1}>
                 <Grid item xs={12} align="center">
                     <Typography component="h4" variant="h4">
@@ -138,7 +139,7 @@ export default class CreateUserPage extends Component {
                 </Grid>
             </Grid> 
                 
-                );
+            </div>   );
             
     }
 }
