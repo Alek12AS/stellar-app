@@ -26,4 +26,7 @@ class AccountUser(models.Model):
     name = models.CharField(max_length=1000, blank=True)
     public_key = models.CharField(max_length=56,null=False, unique=True)
 
+    def __str__(self):
+        return self.name
+
     
