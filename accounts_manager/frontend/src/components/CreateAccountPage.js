@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Grid } from "@material-ui/core";
+import { CreateAccount } from "./tools";
 import TextField from "@material-ui/core/TextField";
-import { FormControl } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
@@ -14,7 +14,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import AddIcon from '@material-ui/icons/Add';
 
-export default class CreateAccount extends Component {
+export default class CreateAccountPage extends Component {
   constructor(props) {
     super(props);
 
@@ -36,6 +36,11 @@ export default class CreateAccount extends Component {
       ],
       userToAdd: "",
       userToAddWeight: 0,
+      low_threshold: 0,
+      medium_threshold: 0,
+      high_threshold: 0,
+      creator_weight: 0,
+      creator_publicKey: "GDCJVNCL4BD6WZJGKQFFRQUPHTE4FCDQ5X4P5Y2PNL3DCCIMFL47U6TR",
       UsernameError: ""
     };
 
@@ -43,6 +48,8 @@ export default class CreateAccount extends Component {
     this.handleRemoveButtonPressed = this.handleRemoveButtonPressed.bind(this);
     this.handleTextInput = this.handleTextInput.bind(this);
     this.handleAddButtonPressed = this.handleAddButtonPressed.bind(this);
+    this.handleNumberInput = this.handleNumberInput.bind(this);
+    this.handleCreateButtonPressed = this.handleCreateButtonPressed.bind(this);
   }
 
   renderRow() {
@@ -144,22 +151,59 @@ export default class CreateAccount extends Component {
     
   }
     
-
   handleAddButtonPressed(e) {
     this.FindUser();
   }
 
   handleTextInput(e) {
+  
     if (e.target.id == "username") {
       this.setState({
         userToAdd: e.target.value
       })
     }
-    else if (e.target.id == "user-weight") {
+  }
+
+  handleNumberInput(e) {
+    const maxValue = 255;
+    const minValue = 0;
+
+    const newValue = Math.min(Math.max(e.target.value, minValue), maxValue);
+    
+    if (e.target.id == "user-weight") {
       this.setState({
-        userToAddWeight: e.target.value
+        userToAddWeight: newValue
       })
     }
+    else if (e.target.id == "low-weight") {
+      this.setState({
+        low_threshold: newValue
+      })
+    }
+    else if (e.target.id == "medium-weight") {
+      this.setState({
+        medium_threshold: newValue
+      })
+    }
+    else if (e.target.id == "high-weight") {
+      this.setState({
+        high_threshold: newValue
+      })
+    }
+    else if (e.target.id == "creator-weight") {
+      this.setState({
+        creator_weight: newValue
+      })
+    }
+  }
+
+  handleCreateButtonPressed(e) {
+    const creator = {publicKey: this.state.creator_publicKey,
+    weight: this.state.creator_weight};
+
+    // CreateAccount(creator, this.state.users, this.state.low_threshold, this.state.medium_threshold, this.state.high_threshold)
+    // .then(() => console.log("Account Creation OK"))
+    // .catch(e => console.log(e));
   }
 
   render() {
@@ -214,7 +258,7 @@ export default class CreateAccount extends Component {
                             id="user-weight"
                             label="Weight"
                             type="number"
-                            onChange={this.handleTextInput}
+                            onChange={this.handleNumberInput}                            
                             InputLabelProps={{
                             shrink: true
                             }}
@@ -228,44 +272,59 @@ export default class CreateAccount extends Component {
                             <AddIcon/>
                         </Button>
                     </Grid>
-                </Grid>
-                <Grid item >
-                <TextField
-                    id="standard-number"
+
+                    <Grid item xs={4}>
+                    <TextField
+                    id="low-threshold"
                     label="Low Threshold"
                     type="number"
+                    onChange={this.handleNumberInput}
                     InputLabelProps={{
                     shrink: true
                     }}
-                />
-                </Grid>
-                <Grid item >
-                <TextField
-                    id="standard-number"
+                    />
+                    </Grid>
+                    <Grid item xs={4}>
+                    <TextField
+                    id="medium-threshold"
                     label="Medium Threshold"
                     type="number"
+                    onChange={this.handleNumberInput}
                     InputLabelProps={{
                     shrink: true
                     }}
-                />
-                </Grid>
-                <Grid item>
-                <TextField
-                    id="standard-number"
+                    />
+                    </Grid>
+                    <Grid item xs={4}>
+                    <TextField
+                    id="high-threshold"
                     label="High Threshold"
                     type="number"
+                    onChange={this.handleNumberInput}
                     InputLabelProps={{
                     shrink: true
                     }}
-                />
-                </Grid>
+                    />
+                    </Grid>
+                    <Grid item xs={4}>
+                    <TextField
+                    id="creator-weight"
+                    label="Your Weight"
+                    type="number"
+                    onChange={this.handleNumberInput}
+                    InputLabelProps={{
+                    shrink: true
+                    }}
+                    />
+                    </Grid>
+                  </Grid>
                 <Grid item>
                 <Button color="secondary" 
-                        variant="contained"
-                        onClick={this.handleCreateButtonPressed}
-                        >
-                            Create Account
-                        </Button>
+                variant="contained"
+                onClick={this.handleCreateButtonPressed}
+                >
+                    Create Account
+                </Button>
                 </Grid>
             </Grid>
         </Grid>

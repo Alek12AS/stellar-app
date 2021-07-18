@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import CreateUserPage from "./CreateUserPage";
 import UserPage from "./UserPage";
-import CreateAccount from "./CreateAccount"
+import CreateAccountPage from "./CreateAccountPage"
 import { BrowserRouter as Router, Switch, Route, Link, Redirect } from "react-router-dom"
 
 export default class HomePage extends Component {
@@ -16,7 +16,7 @@ export default class HomePage extends Component {
                 <Route exact path="/"><p>This is the home page</p></Route>
                 <Route path="/create/" component={CreateUserPage} />
                 <Route path="/user/:public_key" component={UserPage} />
-                <Route path="/create-account/" component={CreateAccount} />
+                <Route path="/create-account/" component={CreateAccountPage} />
             </Switch>
         </Router>
         );

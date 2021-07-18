@@ -26,7 +26,6 @@ class GetUser(APIView):
 
     def get(self, request, format=None):
         public_key = request.GET.get(self.lookup_url_kwarg)
-        print(public_key)
         if public_key != None:
             user = AccountUser.objects.filter(public_key=public_key)
             if len(user) > 0:
@@ -38,8 +37,8 @@ class GetUser(APIView):
         
         return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
 
-class CheckUsername(APIView):
-    # serializer_class = UsernameSerializer
+class getPublicKey(APIView):
+    serializer_class = AccountUserSerializer
     lookup_url_kwarg = 'username'
 
     def get(self, request, format=None):
@@ -47,8 +46,9 @@ class CheckUsername(APIView):
         if username != None:
             user = AccountUser.objects.filter(name=username)
             if len(user) > 0:
+                data = AccountUserSerializer(user[0]).data
 
-                return Response(status=status.HTTP_200_OK)
+                return Response(data ,status=status.HTTP_200_OK)
         
             return Response({ 'User Not Found': 'Invalid Public Key. '}, status=status.HTTP_404_NOT_FOUND)
         
