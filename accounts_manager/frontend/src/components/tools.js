@@ -5,6 +5,7 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
     const server = new Server('https://horizon-testnet.stellar.org')
 
     const userListpk = [];
+    const usernameList = [];
 
     const masterKeypair = Keypair.random();
     console.log(masterKeypair.publicKey());
@@ -17,13 +18,16 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
         ).then((data) => {
             userListpk.push({publicKey: data.public_key,
             weight: user.weight})
-        })
+        });
+        usernameList.push(user.username);
     };
 
     userListpk.push({
         publicKey: creator.publicKey,
         weight: creator.weight
     });
+
+    usernameList.push(creator.username);
 
     const thresholds = {
         masterWeight: 0,
@@ -67,5 +71,22 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
     multiSigTx.sign(masterKeypair);
 
     await server.submitTransaction(multiSigTx);
+
+    sendAccountToApi(masterKeypair.publicKey(), usernameList)
+}
+
+export function sendAccountToApi(masterPK, usernameList) {
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            create_account:{public_key: masterPK},
+            usernames: usernameList
+        }),
+    };
+    
+    fetch('/api/create-account', requestOptions)
+
 }
 

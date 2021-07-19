@@ -46,6 +46,8 @@ class CreateKeysView(APIView):
     serializer_class = AccountUserSerializer
 
     def post(self, request, format=None):
+        print("request.data")
+        print(request.data["name"])
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
@@ -57,5 +59,26 @@ class CreateKeysView(APIView):
             user.save()
         
             return Response(AccountUserSerializer(user).data, status=status.HTTP_201_CREATED)
+
+        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+class CreateAccountView(APIView):
+    serializer_class = AccountSerializer
+
+    def post(self, request, format=None):
+        serializer = self.serializer_class(data=request.data["create_account"])
+
+        if serializer.is_valid():
+        
+            public_key = serializer.data.get('public_key')
+        
+            account = Account(public_key=public_key)
+            account.save()
+
+            for username in request.data["usernames"]:
+                user = AccountUser.objects.get(name = username)
+                user.account.add(account)
+        
+            return Response(AccountSerializer(account).data, status=status.HTTP_201_CREATED)
 
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)

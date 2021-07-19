@@ -28,19 +28,6 @@ export default class UserPage extends Component {
         return( <div>
             <h3> Name: {this.state.name} </h3>
             <p> Public key: {this.public_key} </p>
-
-            <Grid container spacing={1}>
-                <Grid item xs={12} align="center">
-                    <Button color="secondary" 
-                    variant="contained"
-                    onClick={this.handleCreateButtonPressed}
-                    to={"/create-account/"}
-                    Component={Link}
-                    >
-                        Create an Account
-                    </Button>
-                </Grid>
-            </Grid>
         </div>);
     }
 }

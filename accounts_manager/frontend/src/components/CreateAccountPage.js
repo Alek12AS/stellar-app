@@ -20,7 +20,6 @@ export default class CreateAccountPage extends Component {
 
     this.state = {
       users: [
-        { username: "Mozart", weight: 1 },
         { username: "Alex18", weight: 1 },
         { username: "alexandru23", weight: 1 } 
       ],
@@ -30,7 +29,8 @@ export default class CreateAccountPage extends Component {
       medium_threshold: 0,
       high_threshold: 0,
       creator_weight: 0,
-      creator_publicKey: "GDCJVNCL4BD6WZJGKQFFRQUPHTE4FCDQ5X4P5Y2PNL3DCCIMFL47U6TR",
+      creator_publicKey: "GAXE7L52WAU5JLZZN5D4GBREPPICYOWZRZW7IEQCOUSW7DJL2H53GV7U",
+      creator_username: "Mihaela32",
       UsernameError: ""
     };
 
@@ -189,7 +189,8 @@ export default class CreateAccountPage extends Component {
 
   handleCreateButtonPressed(e) {
     const creator = {publicKey: this.state.creator_publicKey,
-    weight: this.state.creator_weight};
+    weight: this.state.creator_weight,
+    username: this.state.creator_username};
 
     CreateAccount(creator, this.state.users, this.state.low_threshold, this.state.medium_threshold, this.state.high_threshold)
     .then(() => console.log("Account Creation OK"))
