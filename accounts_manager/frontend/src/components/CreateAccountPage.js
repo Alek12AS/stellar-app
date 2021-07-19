@@ -20,19 +20,9 @@ export default class CreateAccountPage extends Component {
 
     this.state = {
       users: [
-        { username: "user1", weight: 1 },
-        { username: "user2", weight: 3 },
-        { username: "user3", weight: 2 },
-        { username: "user4", weight: 1 },
-        { username: "user5", weight: 3 },
-        { username: "user6", weight: 2 },
-        { username: "user7", weight: 1 },
-        { username: "user8", weight: 3 },
-        { username: "user9", weight: 2 },
-        { username: "user10", weight: 1 },
-        { username: "userasfoapodfhasdpf11", weight: 3 },
-        { username: "usersdfsdfads12", weight: 2 }
-        
+        { username: "Mozart", weight: 1 },
+        { username: "Alex18", weight: 1 },
+        { username: "alexandru23", weight: 1 } 
       ],
       userToAdd: "",
       userToAddWeight: 0,
@@ -175,17 +165,17 @@ export default class CreateAccountPage extends Component {
         userToAddWeight: newValue
       })
     }
-    else if (e.target.id == "low-weight") {
+    else if (e.target.id == "low_threshold") {
       this.setState({
         low_threshold: newValue
       })
     }
-    else if (e.target.id == "medium-weight") {
+    else if (e.target.id == "medium_threshold") {
       this.setState({
         medium_threshold: newValue
       })
     }
-    else if (e.target.id == "high-weight") {
+    else if (e.target.id == "high_threshold") {
       this.setState({
         high_threshold: newValue
       })
@@ -201,9 +191,9 @@ export default class CreateAccountPage extends Component {
     const creator = {publicKey: this.state.creator_publicKey,
     weight: this.state.creator_weight};
 
-    // CreateAccount(creator, this.state.users, this.state.low_threshold, this.state.medium_threshold, this.state.high_threshold)
-    // .then(() => console.log("Account Creation OK"))
-    // .catch(e => console.log(e));
+    CreateAccount(creator, this.state.users, this.state.low_threshold, this.state.medium_threshold, this.state.high_threshold)
+    .then(() => console.log("Account Creation OK"))
+    .catch(e => console.log(e));
   }
 
   render() {
@@ -275,7 +265,7 @@ export default class CreateAccountPage extends Component {
 
                     <Grid item xs={4}>
                     <TextField
-                    id="low-threshold"
+                    id="low_threshold"
                     label="Low Threshold"
                     type="number"
                     onChange={this.handleNumberInput}
@@ -286,7 +276,7 @@ export default class CreateAccountPage extends Component {
                     </Grid>
                     <Grid item xs={4}>
                     <TextField
-                    id="medium-threshold"
+                    id="medium_threshold"
                     label="Medium Threshold"
                     type="number"
                     onChange={this.handleNumberInput}
@@ -297,7 +287,7 @@ export default class CreateAccountPage extends Component {
                     </Grid>
                     <Grid item xs={4}>
                     <TextField
-                    id="high-threshold"
+                    id="high_threshold"
                     label="High Threshold"
                     type="number"
                     onChange={this.handleNumberInput}

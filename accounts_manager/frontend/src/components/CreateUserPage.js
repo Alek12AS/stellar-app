@@ -20,6 +20,8 @@ export default class CreateUserPage extends Component {
         this.handleTextInput = this.handleTextInput.bind(this);
         this.handleCreateButtonPressed = this.handleCreateButtonPressed.bind(this);
         this.validateForm = this.validateForm.bind(this);
+
+        console.log(sjcl.decrypt("floare",localStorage.getItem("GDCJVNCL4BD6WZJGKQFFRQUPHTE4FCDQ5X4P5Y2PNL3DCCIMFL47U6TR")));
         
     }
 

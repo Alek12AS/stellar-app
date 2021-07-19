@@ -1,4 +1,4 @@
-import {Keypair, Server, TransactionBuilder, Networks} from "stellar-sdk";
+import {Keypair, Server, TransactionBuilder, Networks, Operation} from "stellar-sdk";
 
 export async function CreateAccount(creator, userList, low_thresh, med_thresh, high_thresh) {
     
@@ -10,12 +10,7 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
     console.log(masterKeypair.publicKey());
     console.log(masterKeypair.secret());
     
-    await fetch("https://friendbot.stellar.org/?addr=${masterKeypair.publicKey()}")
-    .then((e) => {
-        if (e.ok) {
-            console.log("master account OK")
-        } else console.log("master account creation not OK")
-    })
+    await fetch('https://friendbot.stellar.org/?addr=' + masterKeypair.publicKey());
 
     for (const user of userList) {
         fetch('/api/get-publicKey' + '?username=' + user.username).then((response) => response.json()
@@ -37,10 +32,11 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
         highThreshold: high_thresh
     };
 
+
     const txOptions = {
         fee: await server.fetchBaseFee(),
         networkPassphrase: Networks.TESTNET
-    }
+    };
 
     const masterAccount = await server.loadAccount(masterKeypair.publicKey());
 
@@ -50,10 +46,10 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
                 ed25519PublicKey: user.publicKey,
                 weight: user.weight
             }
-        }
+        };
 
         const multiSigTx = new TransactionBuilder(masterAccount, txOptions)
-        .addoperation(Operation.setOptions(extraSigner))
+        .addOperation(Operation.setOptions(extraSigner))
         .setTimeout(0)
         .build();
 
