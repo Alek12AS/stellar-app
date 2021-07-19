@@ -1,22 +1,17 @@
 from rest_framework import serializers
-from .models import Account, AccountUser, Token
+from .models import Account, AccountUser, Transaction
 
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ('id', 'code', 'created_at', 'high_weight', 'medium_weight', 'low_weight')
+        fields = ('public_key')
 
-class TokenSerializer(serializers.ModelSerializer):
+class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Token
-        fields = ('id', 'code', 'balance', 'created_at', 'account')
+        model = Transaction
+        fields = ('XDR', 'notes', 'available_to_sign', 'total_signature_weight', 'completed')
 
 class AccountUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountUser
         fields = ('name', 'public_key')
-
-class CreateKeysSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AccountUser
-        fields = ('name','public_key')

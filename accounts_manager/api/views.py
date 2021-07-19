@@ -4,21 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from .serializers import *
-from .models import Account, AccountUser, Token
+from .models import Account, AccountUser, Transaction
 
-
-# Create your views here.
-class AccountView(generics.ListAPIView):
-    queryset = Account.objects.all()
-    serializer_class = AccountSerializer
-
-class TokenView(generics.ListAPIView):
-    queryset = Token.objects.all()
-    serializer_class = TokenSerializer
-
-class AccountUserView(generics.ListAPIView):
-    queryset = AccountUser.objects.all()
-    serializer_class = AccountUserSerializer
 
 class GetUser(APIView):
     serializer_class = AccountUserSerializer
@@ -56,7 +43,7 @@ class getPublicKey(APIView):
 
 class CreateKeysView(APIView):
     
-    serializer_class = CreateKeysSerializer
+    serializer_class = AccountUserSerializer
 
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data)
