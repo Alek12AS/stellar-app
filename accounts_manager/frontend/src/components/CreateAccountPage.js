@@ -5,13 +5,15 @@ import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { Link } from "react-router-dom";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
 import IconButton from "@material-ui/core/IconButton";
 import ClearIcon from "@material-ui/icons/Clear";
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import AddIcon from '@material-ui/icons/Add';
 
 export default class CreateAccountPage extends Component {
@@ -65,32 +67,6 @@ export default class CreateAccountPage extends Component {
     }
     
   }
-
-  renderRows = (type) => {
-    const views = [];
-    if (type == "username") {
-      for (var i =0; i<this.state.users.length; i++){
-        views.push(
-           <ListItem key={i}>         
-           <ListItemText primary={this.state.users[i].username} />
-   
-       </ListItem>);
-       } 
-    } else if (type=="weight") {
-      for (var i =0; i<this.state.users.length; i++){
-      views.push(
-        <ListItem key={i}>         
-        <ListItemText primary={this.state.users[i].weight} />
-        <ListItemSecondaryAction>
-        <IconButton edge="end" aria-label="delete" onClick={this.handleRemoveButtonPressed(i)}>
-        <ClearIcon />
-        </IconButton>
-        </ListItemSecondaryAction>
-        </ListItem>
-        ); }
-    } 
-    return views;
-}
 
   userisAdded() {
 
@@ -200,70 +176,71 @@ export default class CreateAccountPage extends Component {
   render() {
     return (
       <div >
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
             <Grid item xs={12} align="center">
                 <Typography component="h4" variant="h4">
                     Create Account
                 </Typography>
             </Grid>
-            <Grid item xs={3} align="left">
-                <Typography component="h6" variant="h6">
-                    USERNAME
-                </Typography>
+            <Grid item xs={12}>
             </Grid>
-            <Grid item xs={9} align="left">
-                <Typography component="h6" variant="h6">
-                    WEIGHT
-                </Typography>
-            </Grid>
-            <Grid item xs={3} align="left">
-                <List component="nav" aria-label="list-username">
-                
-                {this.renderRows("username")}
-                
-                </List>
-            </Grid>
-            <Grid item xs={3} align="left">
-                <List component="nav" aria-label="list-weight">
-                
-                {this.renderRows("weight")}
-                
-                </List>
+            <Grid item xs={6} align="center">
+                <TableContainer component={Paper}>
+                  <Table aria-label="usersTable">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Username</TableCell>
+                        <TableCell align="right">Weight</TableCell>
+                        <TableCell align="right"> </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableCell component="th" >
+                      <TextField
+                      id="username"
+                      label="e.g. user123"
+                      helperText={this.state.UsernameError}
+                      error={this.state.UsernameError}
+                      onChange={this.handleTextInput}
+                      />
+                      </TableCell>
+                      <TableCell align="right">
+                      <TextField
+                      id="user-weight"
+                      label="Weight"
+                      type="number"
+                      onChange={this.handleNumberInput}                            
+                      InputLabelProps={{
+                      shrink: true
+                      }}
+                      />
+                      </TableCell>
+                      <TableCell align="right">
+                        <IconButton edge="end" aria-label="delete" onClick={this.handleAddButtonPressed}>
+                          <AddIcon/>
+                        </IconButton>
+                      </TableCell>
+                      {this.state.users.map((user,index) => (
+                        <TableRow key={user.username}>
+                          <TableCell component="th" scope="user">
+                            {user.username}
+                          </TableCell>
+                          <TableCell align="right">{user.weight}</TableCell>
+                          <TableCell align="right">
+                            <IconButton edge="end" aria-label="delete" onClick={this.handleRemoveButtonPressed(index)}>
+                              <ClearIcon/>
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
             </Grid>
                 
             <Grid item container spacing={1} xs={6} direction="column">
                 <Grid item container spacing={1} direction="row">
-                    <Grid item  xs={4}>
-                
-                            <TextField
-                            id="username"
-                            label="Username"
-                            helperText={this.state.UsernameError}
-                            error={this.state.UsernameError}
-                            onChange={this.handleTextInput}
-                            />
-                       
-                    </Grid>
-                    <Grid item  xs={4}>
-                        <TextField
-                            id="user-weight"
-                            label="Weight"
-                            type="number"
-                            onChange={this.handleNumberInput}                            
-                            InputLabelProps={{
-                            shrink: true
-                            }}
-                        />
-                    </Grid>
-                    <Grid item  xs={4} >
-                        <Button color="secondary" 
-                        variant="contained"
-                        onClick={this.handleAddButtonPressed}
-                        >
-                            <AddIcon/>
-                        </Button>
-                    </Grid>
-
+                    
                     <Grid item xs={4}>
                     <TextField
                     id="low_threshold"
@@ -275,7 +252,7 @@ export default class CreateAccountPage extends Component {
                     }}
                     />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={4} align="left">
                     <TextField
                     id="medium_threshold"
                     label="Medium Threshold"
@@ -286,7 +263,7 @@ export default class CreateAccountPage extends Component {
                     }}
                     />
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={4} align="left">
                     <TextField
                     id="high_threshold"
                     label="High Threshold"
