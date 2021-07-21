@@ -15,6 +15,7 @@ export default class CreateUserPage extends Component {
             name: "",
             pass:"",
             confirmPass:"",
+            browserError:""
         };
 
         this.handleTextInput = this.handleTextInput.bind(this);
@@ -55,9 +56,31 @@ export default class CreateUserPage extends Component {
         console.log(keypair.secret());
         console.log(pk);
 
-        localStorage.setItem(pk,sjcl.encrypt(this.state.pass,keypair.secret()));
+        // store keys in a list of keypair objects as a JSON string
 
-        console.log(this.state.name);
+        // check if the JSON list already exists
+        if (localStorage.getItem("stellar_keypairs")) {
+            const content = JSON.parse(localStorage.getItem("stellar_keypairs"));
+            content.push({public_key: pk, secret: sjcl.encrypt(this.state.pass,keypair.secret())});
+            
+            try {localStorage.setItem("stellar_keypair", content)}
+            catch(err) {
+                this.setState({
+                    browserError: err
+                });
+            }
+        } else {
+            const content_to_store = JSON.stringify([{public_key: pk, secret: sjcl.encrypt(this.state.pass,keypair.secret())}]);
+            
+            try{localStorage.setItem("stellar_keypair", content_to_store)}
+            catch(err) {
+                this.setState({
+                    browserError: err
+                });
+            }
+        }
+        
+        // post public key and username to store in api database
 
         const requestOptions = {
             method: 'POST',
@@ -139,6 +162,11 @@ export default class CreateUserPage extends Component {
                     >
                         Back
                     </Button>
+                </Grid>
+                <Grid item xs={12}>
+                    <Typography component="h6" variant="h6" style={{color:"#f9140c"}}>
+                        {this.state.browserError}
+                    </Typography>
                 </Grid>
             </Grid> 
                 

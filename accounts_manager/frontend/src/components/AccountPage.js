@@ -100,7 +100,17 @@ export default class UserPage extends Component {
         this.state = {
             transaction_requests: transactions,
             public_key: "",
-            balances: [],
+            balances: [ {
+                "balance": "9999.9999600",
+                "buying_liabilities": "0.0000000",
+                "selling_liabilities": "0.0000000",
+                "asset_type": "DOGE"
+              },{
+                "balance": "5000.0001",
+                "buying_liabilities": "0.0000000",
+                "selling_liabilities": "0.0000000",
+                "asset_type": "DOGE"
+              }],
             low_thresh: 0,
             med_thresh: 0,
             high_thresh: 0,
@@ -177,6 +187,37 @@ export default class UserPage extends Component {
                         Account
                     </Typography>
                 </Grid>
+                <Grid item xs={12} align="center">
+                    <Typography component="h6" variant="h6">
+                        Balances
+                    </Typography>
+                </Grid>
+                <Grid item container justifyContent="center">
+                <Grid item xs={6} align="center">
+                    <TableContainer component={Paper}>
+                        <Table aria-label="balances-table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Asset Type</TableCell>
+                                    <TableCell align="right">Balance</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {this.state.balances.map((b) => (
+                                    <TableRow>
+                                        <TableCell component="th" scope="asset">
+                                            {b.asset_type}
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            {b.balance}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Grid>
+                </Grid>
                 <Grid item xs={12} align = "center">
                     <Typography component="h6" variant="h6">
                         Request a Payment
@@ -217,7 +258,7 @@ export default class UserPage extends Component {
                     labelId="token-select"
                     id="token-select"
                     label="Token"
-                    style={{ marginRight: 8 }}
+                    style={{ position: 'relative', top:'12px'}}
                     fullWidth
                     >
                     <MenuItem value={"XLM"}>XLM</MenuItem>
