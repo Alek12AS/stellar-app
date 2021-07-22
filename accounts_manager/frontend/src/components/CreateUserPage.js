@@ -72,7 +72,7 @@ export default class CreateUserPage extends Component {
         } else {
             const content_to_store = JSON.stringify([{public_key: pk, secret: sjcl.encrypt(this.state.pass,keypair.secret())}]);
             
-            try{localStorage.setItem("stellar_keypair", content_to_store)}
+            try{localStorage.setItem("stellar_keypairs", content_to_store)}
             catch(err) {
                 this.setState({
                     browserError: err

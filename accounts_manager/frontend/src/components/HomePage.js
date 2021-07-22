@@ -18,7 +18,7 @@ export default class HomePage extends Component {
                 <Route path="/create/" component={CreateUserPage} />
                 <Route path="/user/:public_key" component={UserPage} />
                 <Route path="/create-account/" component={CreateAccountPage} />
-                <Route path="/account/" component={AccountPage} />
+                <Route path="/account/:public_key" component={AccountPage} />
             </Switch>
         </Router>
         );

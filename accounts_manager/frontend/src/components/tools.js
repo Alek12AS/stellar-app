@@ -1,8 +1,8 @@
 import {Keypair, Server, TransactionBuilder, Networks, Operation} from "stellar-sdk";
 
+const server = new Server('https://horizon-testnet.stellar.org')
+
 export async function CreateAccount(creator, userList, low_thresh, med_thresh, high_thresh) {
-    
-    const server = new Server('https://horizon-testnet.stellar.org')
 
     const userListpk = [];
     const usernameList = [];
@@ -75,6 +75,7 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
     sendAccountToApi(masterKeypair.publicKey(), usernameList)
 }
 
+
 export function sendAccountToApi(masterPK, usernameList) {
 
     const requestOptions = {
@@ -89,4 +90,9 @@ export function sendAccountToApi(masterPK, usernameList) {
     fetch('/api/create-account', requestOptions)
 
 }
+
+
+// export async function GetAccountDetails() {
+//     await server.loadAccount((account) => this.state.account_details = JSON.parse(account));   
+// }
 

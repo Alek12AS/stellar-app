@@ -41,13 +41,59 @@ class getPublicKey(APIView):
         
         return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
 
+class getTransactions(APIView):
+    serializer_class = TransactionSerializer
+    lookup_url_kwarg = 'account_id'
+    
+    def get(self, request, format=None):
+        public_key = request.GET.get(self.lookup_url_kwarg)
+        
+        if public_key != None:
+            account = Account.objects.filter(public_key=public_key)
+            if len(account) > 0:
+                data = []
+                for t in account[0].transaction_set.all():
+                    new_dataSet = TransactionSerializer(t)
+                    new_dataSet.data["signers"] = []
+                    new_dataSet["signed"] = False
+
+                    for s in t.signers.all():
+                        new_dataSet["signers"].append(s.public_key)
+                    
+                    data.append(new_dataSet)
+                
+                return Response(data, status=status.HTTP_200_OK)
+            
+            return Response({ 'Account Not Found': 'Invalid Public Key. '}, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
+
+class getAccountDetails(APIView):
+
+    serializer_class = AccountSerializer
+    lookup_url_kwarg = 'account_id'
+    
+    def get(self, request, format=None):
+        account_id = request.GET.get(self.lookup_url_kwarg)
+        
+        if account_id != None:
+            account = Account.objects.filter(public_key=account_id)
+            if len(account) > 0:
+                data = AccountSerializer(account[0]).data
+
+                return Response(data, status=status.HTTP_200_OK)
+            
+            return Response({ 'Account Not Found': 'Invalid Public Key. '}, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 class CreateKeysView(APIView):
     
     serializer_class = AccountUserSerializer
 
     def post(self, request, format=None):
-        print("request.data")
-        print(request.data["name"])
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():

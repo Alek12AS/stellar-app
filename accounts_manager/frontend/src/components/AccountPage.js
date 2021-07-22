@@ -22,6 +22,34 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 
+function SignCell(props) {
+    const { signed } = props;
+    
+    if (signed == true){
+        return (
+            <React.Fragment>
+                <TableCell>
+                <IconButton edge="start" aria-label="sign">
+                <CheckIcon/>
+                </IconButton>
+                </TableCell>
+                <TableCell>
+                <IconButton edge="start" aria-label="dont-sign">
+                <ClearIcon/>
+                </IconButton>
+                </TableCell>
+            </React.Fragment>
+        )
+    } 
+    else if (signed == false) {
+        return (
+            <React.Fragment>
+                <TableCell span={2}>SIGNED</TableCell>
+            </React.Fragment>
+        )
+    }
+}
+
 function Row(props) {
     const { row } = props;
     const [open, setOpen] = React.useState(false);
@@ -39,7 +67,7 @@ function Row(props) {
                 </TableCell>
                 <TableCell align="right">{row.amount.toString() + row.token}</TableCell>
                 <TableCell align="right">{row.created_at}</TableCell>
-                <TableCell align="right">{row.total_signature_weight.toString() + "/" + row.med_thresh.toString()}</TableCell>
+                <SignCell display={row.signed}></SignCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0}} colSpan={5}>
@@ -65,15 +93,11 @@ function Row(props) {
                                         <TableCell>{row.notes}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell scope="row" >
-                                        <IconButton edge="start" aria-label="delete">
-                                        <CheckIcon/>
-                                        </IconButton>
+                                        <TableCell component="th" scope="row" style={{fontWeight: 'bold'}}>
+                                            Signature Weight:
                                         </TableCell>
-                                        <TableCell>
-                                        <IconButton edge="start" aria-label="delete">
-                                        <ClearIcon/>
-                                        </IconButton>
+                                        <TableCell align="right">
+                                        {row.total_signature_weight.toString() + "/" + row.med_thresh.toString()}
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>
@@ -92,76 +116,85 @@ export default class UserPage extends Component {
         
         super(props);
 
-        const t1 = {XDR: "AAAAAPewD+/6X8o0bx3bp49Wf+mUhG3o+TUrcjcst717...", requestee: "Mihaela32", amount: 500, token:"XLM", destination: "GAXE7L52WAU5JLZZN5D4GBREPPICYOWZRZW7IEQCOUSW7DJL2H53GV7U"
-        , created_at: "20/07/2021 14:21:02", notes: "Notes", total_signature_weight: 2, med_thresh:3, completed: false};
-        const t2 = {XDR: "TUrcjcst717DWJVAAAAyAFvzscADTkNAAAAAAAAAAAAA...", requestee: "Alex18", amount: 200, token:"XLM",destination: "GAXE7L52WAU5JLZZN5D4GBREPPICYOWZRZW7IEQCOUSW7DJL2H53GV7U"
-        , created_at: "20/07/2021 14:23:05", notes: "Notes", total_signature_weight: 1, med_thresh:3,completed: false};
-        const transactions = [t1, t2];
         this.state = {
-            transaction_requests: transactions,
-            public_key: "",
-            balances: [ {
-                "balance": "9999.9999600",
-                "buying_liabilities": "0.0000000",
-                "selling_liabilities": "0.0000000",
-                "asset_type": "DOGE"
-              },{
-                "balance": "5000.0001",
-                "buying_liabilities": "0.0000000",
-                "selling_liabilities": "0.0000000",
-                "asset_type": "DOGE"
-              }],
-            low_thresh: 0,
-            med_thresh: 0,
-            high_thresh: 0,
-            open: false,
+            transactions: [],
+            server: 'https://horizon-testnet.stellar.org',
+            account_id: "",
+            account_name: "",
+            user_publicKey: "",
+            account_details: {},
+            user_weight: 0,
+            verified: false,
+            DataIsReturned: false,
         };
 
-        this.public_key = this.props.match.params.public_key;
-        this.getAccountDetails();
+        this.state.account_id = this.props.match.params.public_key;
+        
+        this.GetAccountDetails();
+        this.getTransactions();
+
     }
 
-    getAccountDetails() {
-        // const t1 = {XDR: "AAAAAPewD+/6X8o0bx3bp49Wf+mUhG3o+TUrcjcst717...", requestee: "Mihaela32", destination: "GAXE7L52WAU5JLZZN5D4GBREPPICYOWZRZW7IEQCOUSW7DJL2H53GV7U"
-        // , created_at: "20/07/2021 14:21:02", notes: "Notes", total_signature_weight: 2, completed: false};
-        // const t2 = {XDR: "TUrcjcst717DWJVAAAAyAFvzscADTkNAAAAAAAAAAAAA...", requestee: "Alex18", destination: "GBKBCM42UKA4D3LIJYFIU6YPBRUDVZAC4I42ONDQJ3AVXYEXWJL6N3UC"
-        // , created_at: "20/07/2021 14:23:05", notes: "Notes", total_signature_weight: 1, completed: false};
+    verifySigner() {
+        // Find out which public key is in the localstorage in order to display appropriate content for this user
+        if (localStorage.getItem("stellar_keypairs")){
+            const keypairs = JSON.parse(localStorage.getItem("stellar_keypairs"));
 
-        // const transactions = [t1, t2];
-
-        // this.setState({
-        //     transaction_requests: transactions
-        // })
-
-
-        // await Server
-        // .loadAccount(this.state.public_key)
-        // .then((account) => {
-        //     this.state.balances = account.balances;
-        //     this.state.low_thresh = account.thresholds.low_threshold;
-        //     this.state.med_thresh = account.thresholds.med_threshold;
-        //     this.state.high_thresh = account.thresholds.high_threshold;
-        // })
-        
-        // fetch('/api/get-transactions' + '?public_key=' + this.public_key).then((response) => response.json()
-        // ).then((data) => {
-        //     this.setState({
-        //         transactions: data.transactions,
-        //     })
-        // });
-
+            for (const kp of keypairs) {
+                const found = this.state.account_details.signers.filter((signer) => signer.key == kp.public_key)
+                if (found.length != 0) {
+                    this.setState({
+                        user_weight:found[0].weight,
+                        user_publicKey: found[0].key,
+                        verified: true,
+                    })
+                    
+                }
+            }    
         }
+        return false
+    }
+
+
+    getTransactions() {
+        fetch('/api/get-transactions' + '?account_id=' + this.state.account_id).then((response) => response.json()
+        ).then((data) => {
+            const new_data = data;
+            // check if this user has signed it already
+            for (let i=0; i<new_data.length; i++) {
+                if (new_data[i].signers.filter(s => s == this.state.user_publicKey).length !=  0) {
+                    new_data.signed = true
+                }
+            }
+            this.setState({
+                transactions: new_data
+            })
+        });
+
+    }
+
+    async GetAccountDetails() {
+        const server = new Server(this.state.server);
+        await server.loadAccount(this.state.account_id)
+        .then((account) => {
+            this.setState({
+                account_details: account,
+                DataIsReturned: true
+            },() => this.verifySigner())
+        });
+
+        fetch('/api/get-account' + '?account_id=' + this.state.account_id).then((response) => response.json()
+        ).then((data) => {
+            console.log(data.account_id)
+            this.setState({
+            account_name: data.name,
+            DataIsReturned: true
+        })})
+
+    }
 
     handleApproveButtonPressed() {
-        // var self = this;
-
-        // return function handleButton(e) {
-        //     var newList = self.state.users;
-        //     newList.splice(i,1);
-        //     self.setState({
-        //         users: newList
-        // })
-        // }
+        
     }
 
     handleDisapproveButtonPressed() {
@@ -180,11 +213,12 @@ export default class UserPage extends Component {
     }
     
     render() {
+        if (this.state.verified && this.state.DataIsReturned) {
         return( <div>
             <Grid container alignItems="center" spacing={2}>
                 <Grid item xs={12} align="center">
                     <Typography component="h4" variant="h4">
-                        Account
+                        Account: {this.state.account_name}
                     </Typography>
                 </Grid>
                 <Grid item xs={12} align="center">
@@ -203,7 +237,7 @@ export default class UserPage extends Component {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {this.state.balances.map((b) => (
+                                {this.state.account_details.balances.map((b) => (
                                     <TableRow>
                                         <TableCell component="th" scope="asset">
                                             {b.asset_type}
@@ -221,6 +255,11 @@ export default class UserPage extends Component {
                 <Grid item xs={12} align = "center">
                     <Typography component="h6" variant="h6">
                         Request a Payment
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} align = "center">
+                    <Typography component='subtitle1' variant='subtitle1'>
+                        Your signature weight: {this.state.user_weight}
                     </Typography>
                 </Grid>
                 <Grid item xs={12} align = "center">
@@ -256,8 +295,8 @@ export default class UserPage extends Component {
                 <Grid item xs={3}>
                     <Select
                     labelId="token-select"
-                    id="token-select"
-                    label="Token"
+                    id="select-AssetType"
+                    label="Asset Type"
                     style={{ position: 'relative', top:'12px'}}
                     fullWidth
                     >
@@ -307,7 +346,7 @@ export default class UserPage extends Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.transaction_requests.map((t) => (
+                            {this.state.transactions.filter(t => !t.completed).map((t) => (
                                 <Row key={t.requestee + t.created_at} row={t}/>
                             ))}
                         </TableBody>
@@ -317,5 +356,6 @@ export default class UserPage extends Component {
                 
             </Grid>
         </div>);
+        } else return <p>Loading...</p>
     }
 }

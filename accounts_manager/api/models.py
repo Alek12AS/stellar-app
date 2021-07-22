@@ -12,22 +12,12 @@ def generate_unique_code():
 
 # Create your models here.
 class Account(models.Model):
+    name = models.CharField(max_length=100, default="Default Name")
     public_key = models.CharField(max_length=56, default='', unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.public_key
-
-class Transaction(models.Model):
-    code = models.CharField(max_length=8, default=generate_unique_code, unique=True)
-    XDR = models.CharField(max_length=1000)
-    notes = models.CharField(max_length=1000, blank=True)
-    available_to_sign = models.BooleanField()
-    total_signature_weight = models.IntegerField()
-    completed = models.BooleanField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
 
 class AccountUser(models.Model):
     name = models.CharField(max_length=1000)
@@ -38,4 +28,16 @@ class AccountUser(models.Model):
     def __str__(self):
         return self.name
 
-    
+class Transaction(models.Model):
+    code = models.CharField(max_length=8, default=generate_unique_code, unique=True)
+    XDR = models.CharField(max_length=1000)
+    amount = models.DecimalField(max_digits=20, decimal_places=7, default=0)
+    asset_type = models.CharField(max_length=8, default="")
+    notes = models.CharField(max_length=1000, blank=True)
+    available_to_sign = models.BooleanField()
+    total_signature_weight = models.IntegerField()
+    completed = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    signers = models.ManyToManyField(AccountUser)
