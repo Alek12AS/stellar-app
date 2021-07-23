@@ -125,14 +125,27 @@ export default class UserPage extends Component {
             account_details: {},
             user_weight: 0,
             verified: false,
-            DataIsReturned: false,
+            AccountDataReturned: false,
+            TransactionDataReturned: false
         };
 
         this.state.account_id = this.props.match.params.public_key;
         
-        this.GetAccountDetails();
-        this.getTransactions();
+        await this.GetAccountDetails();
 
+    }
+
+    // interval id to reference later to stop setInterval from updating page
+    intervalID;
+
+    componentDidMount() {
+        // Fetch details every 5 seconds to keep page updated
+        this.intervalID = setInterval(this.GetAccountDetails.bind(this), 10000);
+    }
+
+    componentWillUnmount() {
+        //stop fetching data after unmounting component
+        clearInterval(this.intervalID);
     }
 
     verifySigner() {
@@ -156,23 +169,6 @@ export default class UserPage extends Component {
     }
 
 
-    getTransactions() {
-        fetch('/api/get-transactions' + '?account_id=' + this.state.account_id).then((response) => response.json()
-        ).then((data) => {
-            const new_data = data;
-            // check if this user has signed it already
-            for (let i=0; i<new_data.length; i++) {
-                if (new_data[i].signers.filter(s => s == this.state.user_publicKey).length !=  0) {
-                    new_data.signed = true
-                }
-            }
-            this.setState({
-                transactions: new_data
-            })
-        });
-
-    }
-
     async GetAccountDetails() {
         const server = new Server(this.state.server);
         await server.loadAccount(this.state.account_id)
@@ -183,12 +179,27 @@ export default class UserPage extends Component {
             },() => this.verifySigner())
         });
 
+        fetch('/api/get-transactions' + '?account_id=' + this.state.account_id).then((response) => response.json()
+        ).then((data) => {
+            const new_data = data;
+            // check if this user has signed it already
+            for (let i=0; i<new_data.length; i++) {
+                if (new_data[i].signers.filter(s => s == this.state.user_publicKey).length !=  0) {
+                    new_data.signed = true
+                }
+            }
+            this.setState({
+                transactions: new_data,
+                TransactionDataReturned: true
+            })
+        });
+
         fetch('/api/get-account' + '?account_id=' + this.state.account_id).then((response) => response.json()
         ).then((data) => {
             console.log(data.account_id)
             this.setState({
             account_name: data.name,
-            DataIsReturned: true
+            AccountDataReturned: true
         })})
 
     }
@@ -213,7 +224,7 @@ export default class UserPage extends Component {
     }
     
     render() {
-        if (this.state.verified && this.state.DataIsReturned) {
+        if (this.state.verified && this.state.AccountDataReturned && this.state.TransactionDataReturned) {
         return( <div>
             <Grid container alignItems="center" spacing={2}>
                 <Grid item xs={12} align="center">

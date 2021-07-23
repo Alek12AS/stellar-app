@@ -34,7 +34,7 @@ class Transaction(models.Model):
     amount = models.DecimalField(max_digits=20, decimal_places=7, default=0)
     asset_type = models.CharField(max_length=8, default="")
     notes = models.CharField(max_length=1000, blank=True)
-    available_to_sign = models.BooleanField()
+    available_to_sign = models.BooleanField(default=True)
     total_signature_weight = models.IntegerField()
     completed = models.BooleanField()
     created_at = models.DateTimeField(auto_now_add=True)

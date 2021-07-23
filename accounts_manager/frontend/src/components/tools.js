@@ -91,6 +91,84 @@ export function sendAccountToApi(masterPK, usernameList) {
 
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function RequestToSign(code, user_publicKey, medium_threshold, weight) {
+    // post user details and transaction code to identify transaction
+    var requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            code: code,
+            public_key: user_publicKey,
+            medium_threshold: medium_threshold,
+            weight: weight
+        }),
+    };
+    
+    const resolved = false;
+
+    while (!resolved) {
+        fetch('/api/request-to-sign', requestOptions)
+        .then((response) => response.json())
+        .then((status, data) => {
+            if (status == 200) {
+                XDR = Sign(data.XDR, user_publicKey, medium_threshold, weight, data.total_signature_weight);
+                if (XDR) {
+                    requestOptions = {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            code: code,
+                            weight: weight,
+                            public_key: user_publicKey,
+                            medium_threshold: medium_threshold,
+                            XDR: XDR
+                        }),
+                    };
+                    fetch('/api/transaction-signed', requestOptions)
+                }
+                resolved = true;
+                return true
+            }
+            else if (status == 226) {
+                await sleep(2000);
+            }
+            else if (status == 406) {
+                return false
+            }
+    
+        });
+    }
+    
+}
+
+
+
+export async function Sign(XDR, user_publicKey, medium_threshold, weight, total_signature_weight) {
+    const transaction = TransactionBuilder.fromXDR(XDR, Networks.TESTNET);
+    const secret = JSON.parse(sessionStorage.getItem("stellar_keypairs")).secret;
+
+    const kp = Keypair.fromSecret(secret);
+
+    transaction.sign(kp);
+
+    if (weight + total_signature_weight == medium_threshold) {
+        try {
+            await server.submitTransaction(transaction);  
+        } catch (e) {
+            console.log("Transaction Failed!")
+            console.log(e)
+        } 
+        return false   
+    }
+    else {
+        return transaction.toXDR();
+    }
+}
+
 
 // export async function GetAccountDetails() {
 //     await server.loadAccount((account) => this.state.account_details = JSON.parse(account));   
