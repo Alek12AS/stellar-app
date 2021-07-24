@@ -21,33 +21,27 @@ import { Grid } from "@material-ui/core";
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
+import { RequestToSign, RejectTransaction, CreateTransaction } from './tools'
 
 function SignCell(props) {
-    const { signed } = props;
     
-    if (signed == true){
-        return (
-            <React.Fragment>
-                <TableCell>
-                <IconButton edge="start" aria-label="sign">
-                <CheckIcon/>
-                </IconButton>
-                </TableCell>
-                <TableCell>
-                <IconButton edge="start" aria-label="dont-sign">
-                <ClearIcon/>
-                </IconButton>
-                </TableCell>
-            </React.Fragment>
-        )
-    } 
-    else if (signed == false) {
-        return (
-            <React.Fragment>
-                <TableCell span={2}>SIGNED</TableCell>
-            </React.Fragment>
-        )
-    }
+    const { code } = props;
+
+    return (
+        <React.Fragment>
+            <TableCell align="right">
+            <IconButton edge="start" aria-label="sign" onClick={() => this.sign(code)}>
+            <CheckIcon/>
+            </IconButton>
+            </TableCell>
+            <TableCell align="left">
+            <IconButton edge="start" aria-label="dont-sign" onClick={() => this.reject(code)}>
+            <ClearIcon/>
+            </IconButton>
+            </TableCell>
+        </React.Fragment>
+    )
+     
 }
 
 function Row(props) {
@@ -62,12 +56,12 @@ function Row(props) {
                         {open ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
                     </IconButton>
                 </TableCell>
-                <TableCell component="th" scope="row">
-                    {row.requestee}
+                <TableCell component="th" scope="row" align="left">
+                    {row.requestee_username}
                 </TableCell>
-                <TableCell align="right">{row.amount.toString() + row.token}</TableCell>
+                <TableCell align="right">{row.amount.toString() + row.asset_type}</TableCell>
                 <TableCell align="right">{row.created_at}</TableCell>
-                <SignCell display={row.signed}></SignCell>
+                <SignCell></SignCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0}} colSpan={5}>
@@ -96,8 +90,8 @@ function Row(props) {
                                         <TableCell component="th" scope="row" style={{fontWeight: 'bold'}}>
                                             Signature Weight:
                                         </TableCell>
-                                        <TableCell align="right">
-                                        {row.total_signature_weight.toString() + "/" + row.med_thresh.toString()}
+                                        <TableCell align="left">
+                                        {row.total_signature_weight.toString() + "/" + this.state.account_details.thresholds.med_threshold.toString()}
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>
@@ -126,12 +120,19 @@ export default class UserPage extends Component {
             user_weight: 0,
             verified: false,
             AccountDataReturned: false,
-            TransactionDataReturned: false
+            TransactionDataReturned: false,
+            destination: "",
+            amount: "",
+            asset_type: ""
         };
 
         this.state.account_id = this.props.match.params.public_key;
         
-        await this.GetAccountDetails();
+        this.GetAccountDetails();
+
+        this.handleInput = this.handleInput.bind(this);
+        this.handleSubmitButtonPressed = this.handleSubmitButtonPressed.bind(this);
+        Row = Row.bind(this)
 
     }
 
@@ -150,20 +151,20 @@ export default class UserPage extends Component {
 
     verifySigner() {
         // Find out which public key is in the localstorage in order to display appropriate content for this user
-        if (localStorage.getItem("stellar_keypairs")){
-            const keypairs = JSON.parse(localStorage.getItem("stellar_keypairs"));
+        if (sessionStorage.getItem("stellar_keypairs")){
+            const keypairs = JSON.parse(sessionStorage.getItem("stellar_keypairs"));
 
-            for (const kp of keypairs) {
-                const found = this.state.account_details.signers.filter((signer) => signer.key == kp.public_key)
-                if (found.length != 0) {
-                    this.setState({
-                        user_weight:found[0].weight,
-                        user_publicKey: found[0].key,
-                        verified: true,
-                    })
-                    
-                }
-            }    
+            
+            const found = this.state.account_details.signers.filter((signer) => signer.key == keypairs.public_key)
+            if (found.length != 0) {
+                this.setState({
+                    user_weight:found[0].weight,
+                    user_publicKey: found[0].key,
+                    verified: true,
+                })
+                
+            }
+                
         }
         return false
     }
@@ -185,9 +186,16 @@ export default class UserPage extends Component {
             // check if this user has signed it already
             for (let i=0; i<new_data.length; i++) {
                 if (new_data[i].signers.filter(s => s == this.state.user_publicKey).length !=  0) {
-                    new_data.signed = true
+                    new_data[i].signed = true
                 }
             }
+            // check if the user has rejected it already
+            for (let i=0; i<new_data.length; i++) {
+                if (new_data[i].rejecters.filter(s => s == this.state.user_publicKey).length !=  0) {
+                    new_data[i].rejected = true
+                }
+            }
+
             this.setState({
                 transactions: new_data,
                 TransactionDataReturned: true
@@ -196,7 +204,7 @@ export default class UserPage extends Component {
 
         fetch('/api/get-account' + '?account_id=' + this.state.account_id).then((response) => response.json()
         ).then((data) => {
-            console.log(data.account_id)
+            // console.log(data.account_id)
             this.setState({
             account_name: data.name,
             AccountDataReturned: true
@@ -204,23 +212,82 @@ export default class UserPage extends Component {
 
     }
 
-    handleApproveButtonPressed() {
-        
+    sign(code) {
+        resolved = RequestToSign(code, this.state.user_publicKey, this.state.account_details.thresholds.med_threshold, this.state.user_weight)
+        if (resolved == "success") {
+            t_index = this.state.transactions.findIndex((e) => e.code == code);
+            ts = this.state.transactions;
+            ts[index].signed = true;
+            this.setState({
+                transactions: ts
+            })
+        }
+        else if (resolved == "complete") {
+            t_index = this.state.transactions.findIndex((e) => e.code == code);
+            ts = this.state.transactions;
+            ts[index].complete = true;
+            this.setState({
+                transactions: ts
+            })
+        }
+
     }
 
-    handleDisapproveButtonPressed() {
-        // var self = this;
+    reject(code) {
+        resolved = RejectTransaction(code, this.user_publicKey);
 
-        // return function handleButton(e) {
-        //     var newList = self.state.users;
-        //     newList.splice(i,1);
-        //     self.setState({
-        //         users: newList
-        // })
-        // }
+        if (resolved) {
+            t_index = this.state.transactions.findIndex((e) => e.code == code);
+            ts = this.state.transactions;
+            ts[index].complete = true;
+            this.setState({
+                transactions: ts
+            })
+        }
+    }
+    
+    handleInput(e) {
+        if (e.target.id == "destination") {
+            this.setState({
+                destination: e.target.value,
+            });
+        }
+        
+        if (e.target.id == "amount") {
+            this.setState({
+                amount: e.target.value,
+            });
+        }
+
+        
+        if (e.target.id == "notes") {
+            this.setState({
+                notes: e.target.value
+            })
+        }
+
+    }
+
+    handleSelect(value) {
+        this.setState({
+            asset_type: value
+        });
     }
 
     handleSubmitButtonPressed() {
+
+        var completed = false;
+        if (this.state.user_weight == this.state.account_details.thresholds.med_threshold) {
+            completed = true
+        }
+        
+        CreateTransaction(this.state.account_id, this.state.user_publicKey, this.state.user_weight, this.state.destination, 
+            this.state.amount, this.state.asset_type, this.state.notes, completed).then((r) => {
+                if (r) {
+                    console.log("Transaction Request Created")
+                    this.GetAccountDetails()
+                };
+            })
     }
     
     render() {
@@ -251,7 +318,7 @@ export default class UserPage extends Component {
                                 {this.state.account_details.balances.map((b) => (
                                     <TableRow>
                                         <TableCell component="th" scope="asset">
-                                            {b.asset_type}
+                                            { b.asset_type }
                                         </TableCell>
                                         <TableCell align="right">
                                             {b.balance}
@@ -275,11 +342,12 @@ export default class UserPage extends Component {
                 </Grid>
                 <Grid item xs={12} align = "center">
                     <TextField
-                    id="destination-public-key"
+                    id="destination"
                     label="Public Key"
                     style={{ margin: 8 }}
                     placeholder="e.g. GBAEFI4QDEP4IEGCYVKHNSIY65MYYJCQJSN2FTAPHJQEOJI4TZED3HOF"
                     helperText="Destination Public Key"
+                    onChange={this.handleInput}
                     fullWidth
                     required
                     margin="normal"
@@ -291,9 +359,10 @@ export default class UserPage extends Component {
                 </Grid>
                 <Grid item xs={3}>
                     <TextField
-                    id="standard-number"
+                    id="amount"
                     label="Amount"
                     type="number"
+                    onChange={this.handleInput}
                     margin="normal"
                     style={{ marginLeft: 8 }}
                     fullWidth
@@ -305,9 +374,9 @@ export default class UserPage extends Component {
 
                 <Grid item xs={3}>
                     <Select
-                    labelId="token-select"
-                    id="select-AssetType"
-                    label="Asset Type"
+                    labelId="asset"
+                    id="asset"
+                    onChange={(e) => this.handleSelect(e.target.value)}
                     style={{ position: 'relative', top:'12px'}}
                     fullWidth
                     >
@@ -319,8 +388,9 @@ export default class UserPage extends Component {
 
                 <Grid item xs={12}>
                     <TextField
-                    id="notes-field"
+                    id="notes"
                     label="Notes"
+                    onChange = {this.handleInput}
                     multiline
                     placeholder="Notes for other users to see"
                     rows={5}
@@ -350,14 +420,15 @@ export default class UserPage extends Component {
                         <TableHead>
                             <TableRow>
                                 <TableCell />
-                                <TableCell>Requestee</TableCell>
+                                <TableCell align="left">Requestee</TableCell>
                                 <TableCell align="right">Amount</TableCell>
                                 <TableCell align="right">Time</TableCell>
-                                <TableCell align="right">Current Signature Weight</TableCell>
+                                <TableCell align="right"></TableCell>
+                                <TableCell align="right"></TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {this.state.transactions.filter(t => !t.completed).map((t) => (
+                            {this.state.transactions.filter(t => !t.completed && !t.rejected && !t.signed).map((t) => (
                                 <Row key={t.requestee + t.created_at} row={t}/>
                             ))}
                         </TableBody>

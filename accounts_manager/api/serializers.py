@@ -9,7 +9,12 @@ class AccountSerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = ('code','XDR', 'amount', 'notes', 'available_to_sign', 'total_signature_weight', 'created_at', 'completed')
+        fields = ('code','XDR', 'requestee_username', 'amount', 'asset_type', 'destination', 'notes', 'available_to_sign', 'total_signature_weight', 'created_at', 'completed')
+
+class CreateTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Transaction
+        fields=('XDR', 'amount', 'asset_type', 'destination', 'notes', 'total_signature_weight', 'completed', 'available_to_sign')
 
 class AccountUserSerializer(serializers.ModelSerializer):
     class Meta:

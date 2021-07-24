@@ -1,4 +1,4 @@
-import {Keypair, Server, TransactionBuilder, Networks, Operation} from "stellar-sdk";
+import {Keypair, Server, TransactionBuilder, Networks, Operation, BASE_FEE, Asset} from "stellar-sdk";
 
 const server = new Server('https://horizon-testnet.stellar.org')
 
@@ -91,11 +91,11 @@ export function sendAccountToApi(masterPK, usernameList) {
 
 }
 
-function sleep(ms) {
+async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function RequestToSign(code, user_publicKey, medium_threshold, weight) {
+export async function RequestToSign(code, user_publicKey, medium_threshold, weight) {
     // post user details and transaction code to identify transaction
     var requestOptions = {
         method: 'POST',
@@ -113,7 +113,7 @@ export function RequestToSign(code, user_publicKey, medium_threshold, weight) {
     while (!resolved) {
         fetch('/api/request-to-sign', requestOptions)
         .then((response) => response.json())
-        .then((status, data) => {
+        .then(async (status, data) => {
             if (status == 200) {
                 XDR = Sign(data.XDR, user_publicKey, medium_threshold, weight, data.total_signature_weight);
                 if (XDR) {
@@ -128,16 +128,20 @@ export function RequestToSign(code, user_publicKey, medium_threshold, weight) {
                             XDR: XDR
                         }),
                     };
-                    fetch('/api/transaction-signed', requestOptions)
+
+                    fetch('/api/transaction-signed', requestOptions).then((status) => {
+                        if (status == 202) return "success";})
+                
+                    }  
+                    return "failed";
+
                 }
-                resolved = true;
-                return true
-            }
             else if (status == 226) {
                 await sleep(2000);
             }
             else if (status == 406) {
-                return false
+                RejectTransaction()
+                return "completed"
             }
     
         });
@@ -161,16 +165,76 @@ export async function Sign(XDR, user_publicKey, medium_threshold, weight, total_
         } catch (e) {
             console.log("Transaction Failed!")
             console.log(e)
-        } 
-        return false   
+            return false
+        }    
     }
-    else {
-        return transaction.toXDR();
-    }
+    
+    return transaction.toXDR();
+    
 }
 
 
-// export async function GetAccountDetails() {
-//     await server.loadAccount((account) => this.state.account_details = JSON.parse(account));   
-// }
+export function RejectTransaction(code, user_publicKey) {
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            code: code,
+            public_key: user_publicKey
+        }),
+    };
+    fetch('/api/transaction-rejected', requestOptions).then((status) => {
+        if (status == 202) {
+            return true
+        } else {return false}
+    })
+}
+
+export async function CreateTransaction(account_id, user_publicKey, user_weight, destination, 
+    amount, asset_type, notes, completed) {
+    const kp = Keypair.fromSecret(JSON.parse(sessionStorage.getItem("stellar_keypairs")).secret);
+    var XDR = "";
+    await server.loadAccount(account_id)
+    .then((account) => {
+        const transaction = new TransactionBuilder(account, {
+            fee: BASE_FEE,
+            networkPassphrase: Networks.TESTNET
+        })
+        .addOperation(Operation.payment({
+            destination: destination,
+            amount: amount,
+            asset: Asset.native()
+        }))
+        .setTimeout(0)
+        .build()
+        transaction.sign(kp)
+        XDR = transaction.toXDR();
+    })
+    
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            account_id: account_id,
+            user_publicKey: user_publicKey,
+            user_weight: user_weight,
+            transaction: {
+            XDR: XDR,
+            destination: destination,
+            amount: amount,
+            asset_type: asset_type,
+            notes: notes,
+            total_signature_weight: user_weight,
+            completed: completed,
+            available_to_sign: true,
+            }
+        }),
+    };
+
+    fetch('/api/create-transaction', requestOptions).then((status) => {
+        if (status == 201) {
+            return true
+        }
+    })
+}
 

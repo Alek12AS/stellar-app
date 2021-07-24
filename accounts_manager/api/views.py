@@ -53,14 +53,22 @@ class getTransactions(APIView):
             if len(account) > 0:
                 data = []
                 for t in account[0].transaction_set.all():
-                    new_dataSet = TransactionSerializer(t)
-                    new_dataSet.data["signers"] = []
-                    new_dataSet["signed"] = False
+                    dataSet = TransactionSerializer(t).data
+
+                    # Add a list of the signers and rejecters of the transaction as well as signed
+                    # and rejected fields to update in the browser
+                    dataSet["signers"] = []
+                    dataSet["rejecters"] = []
+                    dataSet["signed"] = False
+                    dataSet["rejected"] = False
 
                     for s in t.signers.all():
-                        new_dataSet["signers"].append(s.public_key)
-                    
-                    data.append(new_dataSet)
+                        dataSet["signers"].append(s.public_key)
+
+                    for r in t.rejecters.all():
+                        dataSet["rejecters"].append(r.public_key)
+
+                    data.append(dataSet)
                 
                 return Response(data, status=status.HTTP_200_OK)
             
@@ -130,7 +138,6 @@ class CreateAccountView(APIView):
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 class RequestToSign(APIView):
-    serializer_class = TransactionSerializer
 
     def post(self, request, format=None):
         
@@ -155,7 +162,6 @@ class RequestToSign(APIView):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 class TransactionSigned(APIView):
-    serializer_class = TransactionSerializer
 
     def post(self, request, format=None):
         
@@ -178,4 +184,61 @@ class TransactionSigned(APIView):
             return Response(status=status.HTTP_202_ACCEPTED)
 
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+class RejectTransaction(APIView):
+
+    def post(self, request, format=None):
+        
+        t1 = Transaction.objects.filter(code=request.data["code"])
+
+        if t1.length != 0:
+            
+            user = AccountUser.objects.get(public_key = request.data["public_key"])
+            t1[0].rejecters.add(user)
+            
+            t1[0].save()
+
+            return Response(status=status.HTTP_202_ACCEPTED)
+
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+class CreateTransaction(APIView):
+
+    serializer_class = CreateTransactionSerializer
+
+    def post(self, request, format=None):
+         
+        serializer = self.serializer_class(data=request.data["transaction"])
+        print(request.data['transaction'])
+
+        if serializer.is_valid():
+        
+            user_publicKey = request.data['user_publicKey']
+            account_id = request.data['account_id']
+            account = Account.objects.get(public_key=account_id)
+            user = AccountUser.objects.get(public_key=user_publicKey)
+            
+            requestee_username = user.name
+            XDR = serializer.data.get("XDR")
+            destination = serializer.data.get("destination")
+            amount = serializer.data.get("amount")
+            asset_type = serializer.data.get('asset_type')
+            notes = serializer.data.get("notes")
+            total_signature_weight = serializer.data.get("total_signature_weight")
+            completed = serializer.data.get("completed")
+            available_to_sign = serializer.data.get("available_to_sign")
+             
+
+            new_trans = Transaction(XDR = XDR, requestee_username=requestee_username, destination= destination, amount=amount, asset_type=asset_type,
+            notes=notes, total_signature_weight=total_signature_weight, completed=completed, available_to_sign=available_to_sign,
+            account=account)
+            
+            new_trans.save()
+
+            new_trans.signers.add(user)
+        
+            
+            return Response(status=status.HTTP_201_CREATED)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
