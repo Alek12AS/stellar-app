@@ -2,7 +2,7 @@ import {Keypair, Server, TransactionBuilder, Networks, Operation, BASE_FEE, Asse
 
 const server = new Server('https://horizon-testnet.stellar.org')
 
-export async function CreateAccount(creator, userList, low_thresh, med_thresh, high_thresh) {
+export async function CreateAccount(creator, userList, low_thresh, med_thresh, high_thresh, account_name) {
 
     const userListpk = [];
     const usernameList = [];
@@ -72,17 +72,17 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
 
     await server.submitTransaction(multiSigTx);
 
-    sendAccountToApi(masterKeypair.publicKey(), usernameList)
+    sendAccountToApi(masterKeypair.publicKey(), usernameList, account_name)
 }
 
 
-export function sendAccountToApi(masterPK, usernameList) {
+export function sendAccountToApi(masterPK, usernameList, account_name) {
 
     const requestOptions = {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-            create_account:{public_key: masterPK},
+            create_account:{public_key: masterPK, name: account_name},
             usernames: usernameList
         }),
     };
@@ -108,43 +108,50 @@ export async function RequestToSign(code, user_publicKey, medium_threshold, weig
         }),
     };
     
-    const resolved = false;
+    var resolved = false;
 
     while (!resolved) {
-        fetch('/api/request-to-sign', requestOptions)
-        .then((response) => response.json())
-        .then(async (status, data) => {
-            if (status == 200) {
-                XDR = Sign(data.XDR, user_publicKey, medium_threshold, weight, data.total_signature_weight);
-                if (XDR) {
-                    requestOptions = {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            code: code,
-                            weight: weight,
-                            public_key: user_publicKey,
-                            medium_threshold: medium_threshold,
-                            XDR: XDR
-                        }),
-                    };
-
-                    fetch('/api/transaction-signed', requestOptions).then((status) => {
-                        if (status == 202) return "success";})
-                
-                    }  
-                    return "failed";
-
-                }
-            else if (status == 226) {
-                await sleep(2000);
-            }
-            else if (status == 406) {
-                RejectTransaction()
-                return "completed"
-            }
     
-        });
+        var signRequest_response = await fetch('/api/request-to-sign', requestOptions);
+
+        if (signRequest_response.status == 200) {
+            var sign_data = await signRequest_response.json();
+            var XDR = await Sign(sign_data.XDR, user_publicKey, medium_threshold, weight, sign_data.total_signature_weight);
+            
+            if (XDR) {
+                console.log(XDR)
+                requestOptions = {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        code: code,
+                        weight: weight,
+                        public_key: user_publicKey,
+                        medium_threshold: medium_threshold,
+                        XDR: XDR
+                    }),
+                };
+                
+                resolved  = true;
+                
+                let signed_response = await fetch('/api/transaction-signed', requestOptions);
+                
+                if (signed_response.status == 202) return "success";
+                
+                return "failed";  
+            }
+        }
+
+        else if (signRequest_response.status == 226) {
+            await sleep(2000);
+        }
+        
+        else if (signRequest_response.status == 406) {
+            RejectTransaction()
+            return "sign_not_possible"
+            
+        }
+
     }
     
 }
@@ -154,13 +161,13 @@ export async function RequestToSign(code, user_publicKey, medium_threshold, weig
 export async function Sign(XDR, user_publicKey, medium_threshold, weight, total_signature_weight) {
     const transaction = TransactionBuilder.fromXDR(XDR, Networks.TESTNET);
     const secret = JSON.parse(sessionStorage.getItem("stellar_keypairs")).secret;
-
     const kp = Keypair.fromSecret(secret);
 
     transaction.sign(kp);
-
+    
     if (weight + total_signature_weight == medium_threshold) {
         try {
+            console.log("submitting transaction");
             await server.submitTransaction(transaction);  
         } catch (e) {
             console.log("Transaction Failed!")
@@ -175,6 +182,7 @@ export async function Sign(XDR, user_publicKey, medium_threshold, weight, total_
 
 
 export function RejectTransaction(code, user_publicKey) {
+    console.log(user_publicKey);
     const requestOptions = {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -237,4 +245,3 @@ export async function CreateTransaction(account_id, user_publicKey, user_weight,
         }
     })
 }
-

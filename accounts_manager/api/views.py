@@ -88,7 +88,7 @@ class getAccountDetails(APIView):
             account = Account.objects.filter(public_key=account_id)
             if len(account) > 0:
                 data = AccountSerializer(account[0]).data
-
+                
                 return Response(data, status=status.HTTP_200_OK)
             
             return Response({ 'Account Not Found': 'Invalid Public Key. '}, status=status.HTTP_404_NOT_FOUND)
@@ -121,12 +121,13 @@ class CreateAccountView(APIView):
 
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data["create_account"])
-
+        
         if serializer.is_valid():
         
             public_key = serializer.data.get('public_key')
+            name = serializer.data.get('name')
         
-            account = Account(public_key=public_key)
+            account = Account(name=name, public_key=public_key)
             account.save()
 
             for username in request.data["usernames"]:
@@ -134,7 +135,7 @@ class CreateAccountView(APIView):
                 user.account.add(account)
         
             return Response(AccountSerializer(account).data, status=status.HTTP_201_CREATED)
-
+        print(serializer.data)
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 class RequestToSign(APIView):
@@ -143,7 +144,7 @@ class RequestToSign(APIView):
         
         t1 = Transaction.objects.filter(code=request.data["code"])
 
-        if t1.length != 0: 
+        if len(t1) > 0: 
             weight = request.data["weight"]
             medium_threshold = request.data["medium_threshold"]
             
@@ -152,7 +153,10 @@ class RequestToSign(APIView):
                     t1[0].available_to_sign = False
                     t1[0].save()
 
-                    return Response(status=status.HTTP_200_OK)
+                    data = {"XDR":t1[0].XDR,
+                    "total_signature_weight":t1[0].total_signature_weight}
+
+                    return Response(data,status=status.HTTP_200_OK)
 
                 return Response(status=status.HTTP_226_IM_USED)
         
@@ -167,12 +171,15 @@ class TransactionSigned(APIView):
         
         t1 = Transaction.objects.filter(code=request.data["code"])
         
-        if t1.length != 0:
+        if len(t1) > 0:
             weight = request.data["weight"]
             medium_threshold = request.data["medium_threshold"]
+            print(request.data["XDR"])
             t1[0].XDR = request.data["XDR"]
             t1[0].available_to_sign = True
-            if weight + t1[0].total_signature_weight == medium_threshold:
+            t1[0].total_signature_weight = t1[0].total_signature_weight + weight
+
+            if t1[0].total_signature_weight == medium_threshold:
                 t1[0].completed = True
             
             # add the user as a signer
@@ -191,8 +198,8 @@ class RejectTransaction(APIView):
         
         t1 = Transaction.objects.filter(code=request.data["code"])
 
-        if t1.length != 0:
-            
+        if len(t1) != 0:
+            print(request.data)
             user = AccountUser.objects.get(public_key = request.data["public_key"])
             t1[0].rejecters.add(user)
             

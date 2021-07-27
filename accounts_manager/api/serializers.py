@@ -4,7 +4,7 @@ from .models import Account, AccountUser, Transaction
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ('name', 'created_at')
+        fields = ('name', 'public_key', 'created_at')
 
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:

@@ -33,7 +33,8 @@ export default class CreateAccountPage extends Component {
       creator_weight: 0,
       creator_publicKey: "GAXE7L52WAU5JLZZN5D4GBREPPICYOWZRZW7IEQCOUSW7DJL2H53GV7U",
       creator_username: "Mihaela32",
-      UsernameError: ""
+      UsernameError: "",
+      account_name: ""
     };
 
     this.renderRow = this.renderRow.bind(this);
@@ -128,6 +129,11 @@ export default class CreateAccountPage extends Component {
         userToAdd: e.target.value
       })
     }
+    if (e.target.id == "account-name") {
+      this.setState({
+        account_name: e.target.value
+      })
+    }
   }
 
   handleNumberInput(e) {
@@ -168,7 +174,8 @@ export default class CreateAccountPage extends Component {
     weight: this.state.creator_weight,
     username: this.state.creator_username};
 
-    CreateAccount(creator, this.state.users, this.state.low_threshold, this.state.medium_threshold, this.state.high_threshold)
+    CreateAccount(creator, this.state.users, this.state.low_threshold, this.state.medium_threshold, this.state.high_threshold,
+      this.state.account_name)
     .then(() => console.log("Account Creation OK"))
     .catch(e => console.log(e));
   }
@@ -282,6 +289,19 @@ export default class CreateAccountPage extends Component {
                     onChange={this.handleNumberInput}
                     InputLabelProps={{
                     shrink: true
+                    }}
+                    />
+                    </Grid>
+                    <Grid item xs={12}>
+                    <TextField
+                    id="account-name"
+                    label="Account Name"
+                    placeholder="e.g. Business Account"
+                    onChange={this.handleTextInput}
+                    fullWidth
+                    margin="normal"
+                    InputLabelProps={{
+                        shrink: true,
                     }}
                     />
                     </Grid>

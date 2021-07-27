@@ -61,7 +61,7 @@ function Row(props) {
                 </TableCell>
                 <TableCell align="right">{row.amount.toString() + row.asset_type}</TableCell>
                 <TableCell align="right">{row.created_at}</TableCell>
-                <SignCell></SignCell>
+                <SignCell code={row.code}></SignCell>
             </TableRow>
             <TableRow>
                 <TableCell style={{ paddingBottom: 0, paddingTop: 0}} colSpan={5}>
@@ -132,7 +132,8 @@ export default class UserPage extends Component {
 
         this.handleInput = this.handleInput.bind(this);
         this.handleSubmitButtonPressed = this.handleSubmitButtonPressed.bind(this);
-        Row = Row.bind(this)
+        Row = Row.bind(this);
+        SignCell = SignCell.bind(this);
 
     }
 
@@ -213,19 +214,19 @@ export default class UserPage extends Component {
     }
 
     sign(code) {
-        resolved = RequestToSign(code, this.state.user_publicKey, this.state.account_details.thresholds.med_threshold, this.state.user_weight)
+        const resolved = RequestToSign(code, this.state.user_publicKey, this.state.account_details.thresholds.med_threshold, this.state.user_weight)
         if (resolved == "success") {
-            t_index = this.state.transactions.findIndex((e) => e.code == code);
-            ts = this.state.transactions;
-            ts[index].signed = true;
+            const t_index = this.state.transactions.findIndex((e) => e.code == code);
+            const ts = this.state.transactions;
+            ts[t_index].signed = true;
             this.setState({
                 transactions: ts
             })
         }
         else if (resolved == "complete") {
-            t_index = this.state.transactions.findIndex((e) => e.code == code);
-            ts = this.state.transactions;
-            ts[index].complete = true;
+            const t_index = this.state.transactions.findIndex((e) => e.code == code);
+            const ts = this.state.transactions;
+            ts[t_index].complete = true;
             this.setState({
                 transactions: ts
             })
@@ -234,11 +235,11 @@ export default class UserPage extends Component {
     }
 
     reject(code) {
-        resolved = RejectTransaction(code, this.user_publicKey);
+        const resolved = RejectTransaction(code, this.state.user_publicKey);
 
         if (resolved) {
-            t_index = this.state.transactions.findIndex((e) => e.code == code);
-            ts = this.state.transactions;
+            const t_index = this.state.transactions.findIndex((e) => e.code == code);
+            const ts = this.state.transactions;
             ts[index].complete = true;
             this.setState({
                 transactions: ts
