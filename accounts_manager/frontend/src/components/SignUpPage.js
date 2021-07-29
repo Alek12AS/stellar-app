@@ -6,9 +6,10 @@ import TextField from "@material-ui/core/TextField";
 import { Link } from "react-router-dom";
 import { FormControl } from "@material-ui/core";
 import { Keypair } from "stellar-sdk";
+import Paper from "@material-ui/core/Paper";
 import sjcl from "sjcl";
 
-export default class CreateUserPage extends Component {
+export default class SignUpPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -47,8 +48,22 @@ export default class CreateUserPage extends Component {
     const keypair = Keypair.random();
     const pk = keypair.publicKey();
 
-    console.log(keypair.secret());
     console.log(pk);
+    console.log(keypair.secret());
+
+    const sessionStorage_content = JSON.stringify({
+      public_key: pk,
+      secret: keypair.secret(),
+    });
+
+    // Set the decrypted key in session storage to access account
+    try {
+      sessionStorage.setItem("stellar_keypair", sessionStorage_content);
+    } catch (err) {
+      this.setState({
+        browserError: err,
+      });
+    }
 
     // store keys in a list of keypair objects as a JSON string
 
@@ -61,7 +76,7 @@ export default class CreateUserPage extends Component {
       });
 
       try {
-        localStorage.setItem("stellar_keypair", content);
+        localStorage.setItem("stellar_keypairs", content);
       } catch (err) {
         this.setState({
           browserError: err,
@@ -111,69 +126,76 @@ export default class CreateUserPage extends Component {
   render() {
     return (
       <div class="center">
-        <Grid container spacing={1}>
-          <Grid item xs={12} align="center">
-            <Typography component="h4" variant="h4">
-              Create a KeyPair
-            </Typography>
-          </Grid>
-          <Grid item xs={12} align="center">
-            <FormControl>
-              <TextField
-                required={true}
-                id="Name-Input"
-                label="Name"
-                onChange={this.handleTextInput}
-              />
-            </FormControl>
-          </Grid>
+        <Paper elevation={3}>
+          <Grid container spacing={1}>
+            <Grid item xs={12} align="center">
+              <Typography component="h4" variant="h4">
+                Sign Up
+              </Typography>
+            </Grid>
+            <Grid item xs={12} align="center">
+              <FormControl>
+                <TextField
+                  required={true}
+                  id="Name-Input"
+                  label="Username"
+                  onChange={this.handleTextInput}
+                />
+              </FormControl>
+            </Grid>
 
-          <Grid item xs={12} align="center">
-            <FormControl>
-              <TextField
-                id="Password-Input1"
-                label="Enter Password"
-                onChange={this.handleTextInput}
-                type="password"
-              />
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} align="center">
-            <FormControl>
-              <TextField
-                id="Password-Input2"
-                label="Re-enter Password"
-                onChange={this.handleTextInput}
-                type="password"
-              />
-            </FormControl>
-          </Grid>
+            <Grid item xs={12} align="center">
+              <FormControl>
+                <TextField
+                  id="Password-Input1"
+                  label="Enter Password"
+                  onChange={this.handleTextInput}
+                  type="password"
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} align="center">
+              <FormControl>
+                <TextField
+                  id="Password-Input2"
+                  label="Re-enter Password"
+                  onChange={this.handleTextInput}
+                  type="password"
+                />
+              </FormControl>
+            </Grid>
 
-          <Grid item xs={12} align="center">
-            <Button
-              color="secondary"
-              variant="contained"
-              onClick={this.handleCreateButtonPressed}
-              disabled={!this.validateForm()}
-            >
-              Generate Keypair
-            </Button>
+            <Grid item xs={12} align="center">
+              <Button
+                color="secondary"
+                variant="contained"
+                onClick={this.handleCreateButtonPressed}
+                disabled={!this.validateForm()}
+              >
+                Generate Keypair
+              </Button>
+            </Grid>
+            <Grid item xs={12} align="center">
+              <Button
+                color="primary"
+                variant="contained"
+                to="/"
+                component={Link}
+              >
+                Back
+              </Button>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography
+                component="h6"
+                variant="h6"
+                style={{ color: "#f9140c" }}
+              >
+                {this.state.browserError}
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid item xs={12} align="center">
-            <Button color="primary" variant="contained" to="/" component={Link}>
-              Back
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Typography
-              component="h6"
-              variant="h6"
-              style={{ color: "#f9140c" }}
-            >
-              {this.state.browserError}
-            </Typography>
-          </Grid>
-        </Grid>
+        </Paper>
       </div>
     );
   }

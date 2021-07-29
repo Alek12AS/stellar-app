@@ -147,6 +147,7 @@ export default class AccountPage extends Component {
       destination: "",
       amount: "",
       asset_type: "",
+      notes:"NA",
       loading: true,
     };
 
@@ -341,6 +342,14 @@ export default class AccountPage extends Component {
     });
   }
 
+  validateForm() {
+    return (
+      this.state.destination.length == 56 &&
+      this.state.amount >= 0.0000001 &&
+      this.state.asset_type.length > 0
+    );
+  }
+
   render() {
     if (!this.state.loading) {
       return (
@@ -394,7 +403,7 @@ export default class AccountPage extends Component {
               <TextField
                 id="destination"
                 label="Public Key"
-                style={{ margin: 8 }}
+                // style={{ padding: 8 }}
                 placeholder="e.g. GBAEFI4QDEP4IEGCYVKHNSIY65MYYJCQJSN2FTAPHJQEOJI4TZED3HOF"
                 helperText="Destination Public Key"
                 onChange={this.handleInput}
@@ -414,8 +423,9 @@ export default class AccountPage extends Component {
                 type="number"
                 onChange={this.handleInput}
                 margin="normal"
-                style={{ marginLeft: 8 }}
+                // style={{ marginLeft: 8 }}
                 fullWidth
+                required
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -428,6 +438,7 @@ export default class AccountPage extends Component {
                 id="asset"
                 onChange={(e) => this.handleSelect(e.target.value)}
                 style={{ position: "relative", top: "12px" }}
+                required
                 fullWidth
               >
                 <MenuItem value={"XLM"}>XLM</MenuItem>
@@ -445,7 +456,7 @@ export default class AccountPage extends Component {
                 placeholder="Notes for other users to see"
                 rows={5}
                 fullWidth
-                style={{ margin: 8 }}
+                // style={{ padding: 8 }}
                 margin="normal"
                 variant="outlined"
               />
@@ -455,7 +466,8 @@ export default class AccountPage extends Component {
                 color="secondary"
                 variant="contained"
                 onClick={this.handleSubmitButtonPressed}
-                style={{ margin: 8 }}
+                disabled={!this.validateForm()}
+                // style={{ margin: 8 }}
               >
                 Submit
               </Button>

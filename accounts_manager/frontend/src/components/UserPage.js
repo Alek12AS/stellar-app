@@ -9,19 +9,14 @@ export default class UserPage extends Component {
         super(props);
         this.state = {
             name: "",
+            public_key: ""
         };
 
-        this.public_key = this.props.match.params.public_key;
 
     }
 
     getUserDetails() {
-        fetch('/api/get-user' + '?public_key=' + this.public_key).then((response) => response.json()
-        ).then((data) => {
-            this.setState({
-                name: data.name,
-            })
-        });
+        
     }
     
     render() {

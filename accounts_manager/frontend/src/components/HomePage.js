@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import CreateUserPage from "./CreateUserPage";
 import UserPage from "./UserPage";
 import CreateAccountPage from "./CreateAccountPage";
 import AccountPage from "./AccountPage";
+import SignUpPage from "./SignUpPage";
+import SignInPage from "./SignInPage";
 import {
   BrowserRouter as Router,
   Switch,
@@ -23,7 +24,8 @@ export default class HomePage extends Component {
           <Route exact path="/">
             <p>This is the home page</p>
           </Route>
-          <Route path="/create/" component={CreateUserPage} />
+          <Route path="/sign-up/" component={SignUpPage} />
+          <Route path="/sign-in/" component={SignInPage} />
           <Route path="/user/:public_key" component={UserPage} />
           <Route path="/create-account/" component={CreateAccountPage} />
           <Route path="/account/:public_key" component={AccountPage} />
