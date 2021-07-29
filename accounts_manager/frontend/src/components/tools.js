@@ -8,8 +8,6 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
     const usernameList = [];
 
     const masterKeypair = Keypair.random();
-    console.log(masterKeypair.publicKey());
-    console.log(masterKeypair.secret());
     
     await fetch('https://friendbot.stellar.org/?addr=' + masterKeypair.publicKey());
 
@@ -72,11 +70,13 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
 
     await server.submitTransaction(multiSigTx);
 
-    sendAccountToApi(masterKeypair.publicKey(), usernameList, account_name)
+    await sendAccountToApi(masterKeypair.publicKey(), usernameList, account_name)
+
+    return masterKeypair.publicKey();
 }
 
 
-export function sendAccountToApi(masterPK, usernameList, account_name) {
+async function sendAccountToApi(masterPK, usernameList, account_name) {
 
     const requestOptions = {
         method: 'POST',
@@ -87,7 +87,7 @@ export function sendAccountToApi(masterPK, usernameList, account_name) {
         }),
     };
     
-    fetch('/api/create-account', requestOptions)
+    await fetch('/api/create-account', requestOptions)
 
 }
 
