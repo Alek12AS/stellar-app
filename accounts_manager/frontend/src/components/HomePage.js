@@ -26,7 +26,7 @@ export default class HomePage extends Component {
           </Route>
           <Route path="/sign-up/" component={SignUpPage} />
           <Route path="/sign-in/" component={SignInPage} />
-          <Route path="/user/:public_key" component={UserPage} />
+          <Route path="/user/" component={UserPage} />
           <Route path="/create-account/" component={CreateAccountPage} />
           <Route path="/account/:public_key" component={AccountPage} />
         </Switch>

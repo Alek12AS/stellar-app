@@ -355,13 +355,13 @@ export default class AccountPage extends Component {
       return (
         <div>
           <Grid container alignItems="center" spacing={2}>
-            <Grid item xs={12} align="center">
-              <Typography component="h4" variant="h4">
-                Account: {this.state.account_name}
+            <Grid item xs={12} align="left">
+              <Typography component="h3" variant="h3">
+                {this.state.account_name}
               </Typography>
             </Grid>
             <Grid item xs={12} align="center">
-              <Typography component="h6" variant="h6">
+              <Typography component="h4" variant="h4">
                 Balances
               </Typography>
             </Grid>
@@ -390,7 +390,7 @@ export default class AccountPage extends Component {
               </Grid>
             </Grid>
             <Grid item xs={12} align="center">
-              <Typography component="h6" variant="h6">
+              <Typography component="h4" variant="h4">
                 Request a Payment
               </Typography>
             </Grid>
@@ -473,7 +473,7 @@ export default class AccountPage extends Component {
               </Button>
             </Grid>
             <Grid item xs={12} align="center">
-              <Typography component="h6" variant="h6">
+              <Typography component="h4" variant="h4">
                 Payment Requests
               </Typography>
             </Grid>

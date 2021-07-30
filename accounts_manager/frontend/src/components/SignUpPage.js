@@ -179,7 +179,7 @@ export default class SignUpPage extends Component {
               <Button
                 color="primary"
                 variant="contained"
-                to="/"
+                to="/home/"
                 component={Link}
               >
                 Back

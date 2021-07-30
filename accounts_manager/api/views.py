@@ -7,7 +7,7 @@ from .serializers import *
 from .models import Account, AccountUser, Transaction
 
 
-class GetUser(APIView):
+class GetUserDetails(APIView):
     serializer_class = AccountUserSerializer
     lookup_url_kwarg = 'public_key'
 
@@ -16,8 +16,15 @@ class GetUser(APIView):
         if public_key != None:
             user = AccountUser.objects.filter(public_key=public_key)
             if len(user) > 0:
-                data = AccountUserSerializer(user[0]).data
+                user_data = AccountUserSerializer(user[0]).data
+                accounts = []
+
+                for a in user[0].account.all():
+                    account_data = AccountSerializer(a).data
+                    accounts.append(account_data)
                 
+                data = {"user_details": user_data, "accounts": accounts}
+
                 return Response(data, status=status.HTTP_200_OK)
         
             return Response({ 'User Not Found': 'Invalid Public Key. '}, status=status.HTTP_404_NOT_FOUND)
