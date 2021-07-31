@@ -160,7 +160,7 @@ export async function RequestToSign(code, user_publicKey, medium_threshold, weig
 
 export async function Sign(XDR, user_publicKey, medium_threshold, weight, total_signature_weight) {
     const transaction = TransactionBuilder.fromXDR(XDR, Networks.TESTNET);
-    const secret = JSON.parse(sessionStorage.getItem("stellar_keypairs")).secret;
+    const secret = JSON.parse(sessionStorage.getItem("stellar_keypair")).secret;
     const kp = Keypair.fromSecret(secret);
 
     transaction.sign(kp);
@@ -200,7 +200,7 @@ export function RejectTransaction(code, user_publicKey) {
 
 export async function CreateTransaction(account_id, user_publicKey, user_weight, destination, 
     amount, asset_type, notes, completed) {
-    const kp = Keypair.fromSecret(JSON.parse(sessionStorage.getItem("stellar_keypairs")).secret);
+    const kp = Keypair.fromSecret(JSON.parse(sessionStorage.getItem("stellar_keypair")).secret);
     var XDR = "";
     await server.loadAccount(account_id)
     .then((account) => {
@@ -239,9 +239,10 @@ export async function CreateTransaction(account_id, user_publicKey, user_weight,
         }),
     };
 
-    fetch('/api/create-transaction', requestOptions).then((status) => {
-        if (status == 201) {
-            return true
-        }
-    })
+    const response = await fetch('/api/create-transaction', requestOptions);
+    
+    if (response.status == 201) {
+        return true
+    }
+    
 }
