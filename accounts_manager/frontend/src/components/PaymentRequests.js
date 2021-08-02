@@ -16,6 +16,11 @@ import { Grid } from "@material-ui/core";
 import { RequestToSign, RejectTransaction } from "./tools";
 import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 // For rendering the rows in the table of payment requests
 function Row(props) {
@@ -113,25 +118,73 @@ function Row(props) {
   );
 }
 
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
+const useStyles = makeStyles((theme) => ({
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
+  },
+}));
+
 export default function (props) {
   const { requests, details, updateRequests } = props;
+  const [loading, setLoading] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const [failed, setFailed] = React.useState(false);
+  const [completed, setCompleted] = React.useState(false);
+  const [cannotSign, setCannotSign] = React.useState(false);
 
-  const sign = (code) => {
-    const t_index = requests.findIndex((e) => e.code == code);
-    const new_trans = requests;
-    new_trans[t_index].signed = true;
-    updateRequests(new_trans)
+  const classes = useStyles();
+
+  async function sign(code) {
     
-    const resolved = RequestToSign(
+    setLoading(true)
+    
+    const resolved = await RequestToSign(
       code,
       details.user_publicKey,
       details.med_threshold,
       details.user_weight
     );
+
+    setLoading(false)
+
+    if (!resolved) {
+      setFailed(true);
+
+    } else if (resolved == 'already_complete') {
+      setCompleted(true);
+      let t_index = requests.findIndex((e) => e.code == code);
+      let new_trans = requests;
+      new_trans[t_index].completed = true;
+      updateRequests(new_trans)
+    }
+    else if (resolved == 'cannot_sign') {
+      setCannotSign(true);
+      let t_index = requests.findIndex((e) => e.code == code);
+      let new_trans = requests;
+      new_trans[t_index].rejected = true;
+      updateRequests(new_trans)
+    } else {
+      setSuccess(true);
+      let t_index = requests.findIndex((e) => e.code == code);
+      let new_trans = requests;
+      new_trans[t_index].signed = true;
+      updateRequests(new_trans)
+    }
+  
   }
 
   const reject = (code) => {
+
+    setLoading(true);
+
     const resolved = RejectTransaction(code, details.user_publicKey);
+
+    setLoading(false);
 
     if (resolved) {
       const t_index = transactions.findIndex((e) => e.code == code);
@@ -172,6 +225,29 @@ export default function (props) {
           </Table>
         </TableContainer>
       </Grid>
+      <Backdrop className={classes.backdrop} open={loading}>
+      <CircularProgress color="inherit" />
+      </Backdrop>
+      <Snackbar open={success} autoHideDuration={6000} onClose={() => setSuccess(false)}>
+        <Alert onClose={() => setSuccess(false)} severity="success">
+          Success!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={failed} autoHideDuration={6000} onClose={() => setFailed(false)}>
+        <Alert onClose={() => setFailed(false)} severity="error">
+          Signature Failed!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={completed} autoHideDuration={6000} onClose={() => setCompleted(false)}>
+        <Alert onClose={() => setCompleted(false)} severity="info">
+          Transaction already completed!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={cannotSign} autoHideDuration={6000} onClose={() => setCannotSign(false)}>
+        <Alert onClose={() => setCannotSign(false)} severity="warning">
+          Cannot Sign!
+        </Alert>
+      </Snackbar>
     </React.Fragment>
   );
 }

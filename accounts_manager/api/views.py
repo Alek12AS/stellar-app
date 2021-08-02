@@ -154,8 +154,11 @@ class RequestToSign(APIView):
         if len(t1) > 0: 
             weight = request.data["weight"]
             medium_threshold = request.data["medium_threshold"]
+
+            if t1[0].completed:
+                return Response(status=status.HTTP_208_ALREADY_REPORTED)
             
-            if weight + t1[0].total_signature_weight <= medium_threshold:
+            elif weight + t1[0].total_signature_weight <= medium_threshold:
                 if t1[0].available_to_sign:
                     t1[0].available_to_sign = False
                     t1[0].save()
@@ -167,8 +170,8 @@ class RequestToSign(APIView):
 
                 return Response(status=status.HTTP_226_IM_USED)
         
-
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+            else:
+                return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
 
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -198,6 +201,19 @@ class TransactionSigned(APIView):
             return Response(status=status.HTTP_202_ACCEPTED)
 
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+class MakeTransactionAvailableToSign(APIView):
+
+    def post(self, request, format=None):
+        t = Transaction.objects.filter(code=request.data["code"])
+        if len(t) > 0:
+            t.available_to_sign = True
+            t.save()
+
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
 
 class RejectTransaction(APIView):
 

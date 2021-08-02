@@ -166,7 +166,7 @@ export default class SignInPage extends Component {
               </Button>
             </Grid>
             <Grid item xs={12} align="center">
-              <Typography component="h4" variant="h4" style={{ color: "red" }}>
+              <Typography variant='caption' style={{ color: "red" }}>
                 {this.state.KeyError}
               </Typography>
             </Grid>
