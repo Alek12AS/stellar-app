@@ -4,166 +4,70 @@ import { CreateAccount } from "./tools";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import { Link } from "react-router-dom";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import ClearIcon from "@material-ui/icons/Clear";
-import AddIcon from "@material-ui/icons/Add";
 import ReactLoading from "react-loading";
+import SetAccountDetails from "./SetAccountDetails";
+import AddUsers from "./AddUsers";
+import ConfirmationPage from "./ConfirmationPage";
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
 
 export default class CreateAccountPage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      users: [
-        { username: "Alex18", weight: 1 },
-        { username: "alexandru23", weight: 1 },
-      ],
-      userToAdd: "",
-      userToAddWeight: 0,
+      users: [],
       low_threshold: 0,
-      medium_threshold: 0,
+      med_threshold: 0,
       high_threshold: 0,
       creator_weight: 0,
-      creator_publicKey:
-        "GAXE7L52WAU5JLZZN5D4GBREPPICYOWZRZW7IEQCOUSW7DJL2H53GV7U",
+      creator_publicKey: "GAXE7L52WAU5JLZZN5D4GBREPPICYOWZRZW7IEQCOUSW7DJL2H53GV7U",
       creator_username: "Mihaela32",
-      UsernameError: "",
       account_name: "",
       loading: false,
+      steps: ['Set Account Details', 'Add Users', 'Confirm'],
+      activeStep: 0
     };
 
-    this.renderRow = this.renderRow.bind(this);
-    this.handleRemoveButtonPressed = this.handleRemoveButtonPressed.bind(this);
-    this.handleTextInput = this.handleTextInput.bind(this);
-    this.handleAddButtonPressed = this.handleAddButtonPressed.bind(this);
-    this.handleNumberInput = this.handleNumberInput.bind(this);
-    this.handleCreateButtonPressed = this.handleCreateButtonPressed.bind(this);
+    this.handleNext = this.handleNext.bind(this);
+    this.handleBack = this.handleBack.bind(this);
+    this.modifyUserList = this.modifyUserList.bind(this);
+    this.numbersModified = this.numbersModified.bind(this);
+    this.nameModified = this.nameModified.bind(this);
+
   }
 
-  renderRow() {
-    this.state.users.map(function (user, index) {
-      return (
-        <ListItem button key={index}>
-          <ListItemText primary={user.username} />
-        </ListItem>
-      );
-    });
+  modifyUserList (newUserList) {
+    this.setState({
+      users: newUserList
+    })
   }
 
-  handleRemoveButtonPressed(i) {
-    var self = this;
-
-    return function handleButton(e) {
-      var newList = self.state.users;
-      newList.splice(i, 1);
-      self.setState({
-        users: newList,
-      });
-    };
-  }
-
-  userisAdded() {
-    var index = this.state.users.findIndex(
-      (user) => user.username == this.state.userToAdd
-    );
-
-    return index;
-  }
-
-  FindUser() {
-    fetch("/api/check-username" + "?username=" + this.state.userToAdd).then(
-      (response) => {
-        console.log(this.userisAdded(this.state.userToAdd));
-
-        if (response.status == 200 && this.userisAdded() == -1) {
-          var newUserList = this.state.users;
-          newUserList.push({
-            username: this.state.userToAdd,
-            weight: this.state.userToAddWeight,
-          });
-
-          this.setState({
-            users: newUserList,
-            UsernameError: "",
-          });
-        } else if (response.status == 200 && this.userisAdded() != -1) {
-          newUserList = this.state.users;
-
-          const index = this.userisAdded();
-          newUserList[index].weight = this.state.userToAddWeight;
-
-          this.setState({
-            users: newUserList,
-            UsernameError: "",
-          });
-        } else if (response.status == 404) {
-          this.setState({
-            UsernameError: "User not found!",
-          });
-        } else if (response.status == 400) {
-          this.setState({
-            UsernameError: "Missing username",
-          });
-        }
-      }
-    );
-  }
-
-  handleAddButtonPressed(e) {
-    this.FindUser();
-  }
-
-  handleTextInput(e) {
-    if (e.target.id == "username") {
+  numbersModified(type, newValue) {
+    if (type == "low_threshold") {
       this.setState({
-        userToAdd: e.target.value,
+        low_threshold: newValue
       });
     }
-    if (e.target.id == "account-name") {
+    else if (type == "med_threshold") {
       this.setState({
-        account_name: e.target.value,
+        med_threshold: newValue
+      });
+    }
+    else if (type  == "high_threshold") {
+      this.setState({
+        high_threshold: newValue
+      });
+    }
+    else if (type == "creator_weight") {
+      this.setState({
+        creator_weight: newValue
       });
     }
   }
 
-  handleNumberInput(e) {
-    const maxValue = 255;
-    const minValue = 0;
-
-    const newValue = Math.min(Math.max(e.target.value, minValue), maxValue);
-
-    if (e.target.id == "user-weight") {
-      this.setState({
-        userToAddWeight: newValue,
-      });
-    } else if (e.target.id == "low_threshold") {
-      this.setState({
-        low_threshold: newValue,
-      });
-    } else if (e.target.id == "medium_threshold") {
-      this.setState({
-        medium_threshold: newValue,
-      });
-    } else if (e.target.id == "high_threshold") {
-      this.setState({
-        high_threshold: newValue,
-      });
-    } else if (e.target.id == "creator-weight") {
-      this.setState({
-        creator_weight: newValue,
-      });
-    }
-  }
-
-  handleCreateButtonPressed(e) {
+  CreateAccount() {
     this.setState({
       loading: true,
     });
@@ -177,7 +81,7 @@ export default class CreateAccountPage extends Component {
       creator,
       this.state.users,
       this.state.low_threshold,
-      this.state.medium_threshold,
+      this.state.med_threshold,
       this.state.high_threshold,
       this.state.account_name
     )
@@ -185,149 +89,91 @@ export default class CreateAccountPage extends Component {
       .catch((e) => console.log(e));
   }
 
+  handleUserAdded(users) {
+    this.setState({
+      users: users
+    })
+  }
+
+  nameModified(newName) {
+    this.setState({
+      account_name: newName
+    });
+  }
+
+  validateForm() {
+    return this.state.account_name.length > 0;
+  }
+
+  
+  getStepContent() {
+    switch (this.state.activeStep) {
+      case 0:
+        return(<SetAccountDetails numbersModified={this.numbersModified} nameModified = {this.nameModified}/>);
+      case 1:
+        return(<AddUsers modifyUserList = {this.modifyUserList} users = {this.state.users}/>);
+      case 2:
+        let details = {account_name: this.state.account_name, low_threshold: this.state.low_threshold,
+        med_threshold: this.state.med_threshold, high_threshold: this.state.high_threshold, creator_weight: 
+        this.state.creator_weight};
+
+        return(<ConfirmationPage users = {this.state.users} details = {details} />);
+    }
+  }
+
+  handleNext() {
+    if (this.state.activeStep == this.state.steps.length - 1) {
+      this.CreateAccount();
+    }
+    else {
+      this.setState({
+        activeStep: this.state.activeStep + 1
+      });
+    }
+  };
+
+    handleBack() {
+      this.setState({
+        activeStep: this.state.activeStep - 1
+      })
+    };
+
+
   render() {
     if (!this.state.loading) {
       return (
         <div>
           <Grid container spacing={2}>
             <Grid item xs={12} align="center">
-              <Typography component="h4" variant="h4">
+              <Typography component="h3" variant="h3">
                 Create Account
               </Typography>
             </Grid>
-            <Grid item xs={12}></Grid>
-            <Grid item xs={6} align="center">
-              <TableContainer component={Paper}>
-                <Table aria-label="usersTable">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Username</TableCell>
-                      <TableCell align="right">Weight</TableCell>
-                      <TableCell align="right"> </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableCell component="th">
-                      <TextField
-                        id="username"
-                        label="e.g. user123"
-                        helperText={this.state.UsernameError}
-                        error={this.state.UsernameError}
-                        onChange={this.handleTextInput}
-                      />
-                    </TableCell>
-                    <TableCell align="right">
-                      <TextField
-                        id="user-weight"
-                        label="Weight"
-                        type="number"
-                        onChange={this.handleNumberInput}
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell align="right">
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={this.handleAddButtonPressed}
-                      >
-                        <AddIcon />
-                      </IconButton>
-                    </TableCell>
-                    {this.state.users.map((user, index) => (
-                      <TableRow key={user.username}>
-                        <TableCell component="th" scope="user">
-                          {user.username}
-                        </TableCell>
-                        <TableCell align="right">{user.weight}</TableCell>
-                        <TableCell align="right">
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={this.handleRemoveButtonPressed(index)}
-                          >
-                            <ClearIcon />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+            <Grid item xs={12}>
+            <Stepper activeStep={this.state.activeStep} alternativeLabel>
+            {this.state.steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+            </Stepper>
             </Grid>
-
-            <Grid item container spacing={1} xs={6} direction="column">
-              <Grid item container spacing={1} direction="row">
-                <Grid item xs={4}>
-                  <TextField
-                    id="low_threshold"
-                    label="Low Threshold"
-                    type="number"
-                    onChange={this.handleNumberInput}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={4} align="left">
-                  <TextField
-                    id="medium_threshold"
-                    label="Medium Threshold"
-                    type="number"
-                    onChange={this.handleNumberInput}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={4} align="left">
-                  <TextField
-                    id="high_threshold"
-                    label="High Threshold"
-                    type="number"
-                    onChange={this.handleNumberInput}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={4}>
-                  <TextField
-                    id="creator-weight"
-                    label="Your Weight"
-                    type="number"
-                    onChange={this.handleNumberInput}
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    id="account-name"
-                    label="Account Name"
-                    placeholder="e.g. Business Account"
-                    onChange={this.handleTextInput}
-                    fullWidth
-                    margin="normal"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              <Grid item>
-                <Button
-                  color="secondary"
-                  variant="contained"
-                  onClick={this.handleCreateButtonPressed}
-                >
-                  Create Account
-                </Button>
-              </Grid>
+            <Grid item xs = {6} align ="left">
+            <Button
+                disabled={this.state.activeStep === 0}
+                onClick={this.handleBack}
+                color = "primary"
+              >
+                Back
+            </Button>
             </Grid>
+            <Grid item xs = {6} align = "right">
+              <Button variant="contained" color="secondary" onClick={this.handleNext} disabled={!this.validateForm()}>
+                {this.state.activeStep === this.state.steps.length - 1 ? 'Create' : 'Next'}
+              </Button>
+            </Grid>
+            {this.getStepContent()}
+          
           </Grid>
         </div>
       );
@@ -338,5 +184,5 @@ export default class CreateAccountPage extends Component {
         </div>
       );
     }
-  }
+}
 }

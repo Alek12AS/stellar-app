@@ -10,6 +10,8 @@ import Tab from "@material-ui/core/Tab";
 import Balances from "./Balances";
 import PaymentRequests from "./PaymentRequests";
 import RequestPayment from "./RequestPayment";
+import PendingPayments from "./PendingPayments";
+import HistoricalPayments from "./HistoricalPayments";
 
 export default class AccountPage extends Component {
   constructor(props) {
@@ -166,7 +168,21 @@ export default class AccountPage extends Component {
         return (<PaymentRequests requests={this.state.transactions}
          details={details} updateRequests={this.updateRequests}/>);
       case 3:
-        break;
+        var details = {
+          user_publicKey: this.state.user_publicKey,
+          user_weight: this.state.user_weight,
+          med_threshold: this.state.account_details.thresholds.med_threshold
+        };
+        return (<PendingPayments requests={this.state.transactions}
+          details={details} />);
+      case 4:
+        var details = {
+          user_publicKey: this.state.user_publicKey,
+          user_weight: this.state.user_weight,
+          med_threshold: this.state.account_details.thresholds.med_threshold
+        };
+        return (<HistoricalPayments requests={this.state.transactions}
+          details={details} />);
     }
   };
 
@@ -192,6 +208,7 @@ export default class AccountPage extends Component {
                 <Tab label="Balances" />
                 <Tab label="Create Payment Request" />
                 <Tab label="Payment Requests" />
+                <Tab label="Pending Payments" />
                 <Tab label="Payment History" />
               </Tabs>
             </Paper>

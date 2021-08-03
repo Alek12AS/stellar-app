@@ -215,10 +215,10 @@ export default function (props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {requests
-                .filter((t) => !t.completed && !t.rejected && !t.signed)
+              {requests.reverse()
+                .filter((t) => {return !t.completed && !t.rejected && !t.signed})
                 .map((t) => (
-                  <Row key={t.requestee + t.created_at} row={t} sign={sign}
+                  <Row key={t.code} row={t} sign={sign}
                    reject={reject} thresh={details.med_threshold}/>
                 ))}
             </TableBody>

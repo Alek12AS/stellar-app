@@ -150,7 +150,7 @@ export default class UserPage extends Component {
         <div>
           <Grid container spacing={2}>
             <Grid item xs={12} align="left">
-                <Typography variant="h3">
+                <Typography component="h3" variant="h3">
                     Dashboard
                 </Typography>
             </Grid>
@@ -160,7 +160,7 @@ export default class UserPage extends Component {
                 </Typography>
             </Grid>
             <Grid item xs={12} align="center">
-                <Typography variant="h4">
+                <Typography component="h4" variant="h4">
                     Accounts
                 </Typography>
             </Grid>
