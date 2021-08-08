@@ -52,6 +52,7 @@ export default class SignUpPage extends Component {
     console.log(keypair.secret());
 
     const sessionStorage_content = JSON.stringify({
+      username: this.state.name,
       public_key: pk,
       secret: keypair.secret(),
     });
@@ -76,7 +77,7 @@ export default class SignUpPage extends Component {
       });
 
       try {
-        localStorage.setItem("stellar_keypairs", content);
+        localStorage.setItem("stellar_keypairs", JSON.stringify(content));
       } catch (err) {
         this.setState({
           browserError: err,
@@ -91,7 +92,7 @@ export default class SignUpPage extends Component {
       ]);
 
       try {
-        localStorage.setItem("stellar_keypairs", content_to_store);
+        localStorage.setItem("stellar_keypairs", JSON.stringify(content_to_store));
       } catch (err) {
         this.setState({
           browserError: err,
@@ -112,7 +113,7 @@ export default class SignUpPage extends Component {
 
     fetch("/api/create-user", requestOptions)
       .then((response) => response.json())
-      .then((data) => this.props.history.push("/user/" + data.public_key));
+      .then((data) => this.props.history.push("/user/"));
   }
 
   validateForm() {
@@ -179,7 +180,7 @@ export default class SignUpPage extends Component {
               <Button
                 color="primary"
                 variant="contained"
-                to="/home/"
+                to="/"
                 component={Link}
               >
                 Back

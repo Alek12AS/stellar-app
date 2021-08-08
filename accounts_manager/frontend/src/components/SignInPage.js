@@ -85,8 +85,9 @@ export default class SignInPage extends Component {
       }
 
       const sessionStorage_content = JSON.stringify({
+        username: this.state.name,
         public_key: data.public_key,
-        secret: plain_secret,
+        secret: plain_secret
       });
 
       sessionStorage.setItem("stellar_keypair", sessionStorage_content);
@@ -164,6 +165,11 @@ export default class SignInPage extends Component {
               >
                 Back
               </Button>
+            </Grid>
+            <Grid item xs={12} align="center">
+              <Typography variant="subtitle1" component="subtitle1"> 
+              <Link to="/sign-up/">Sign Up</Link>
+              </Typography>
             </Grid>
             <Grid item xs={12} align="center">
               <Typography variant='caption' style={{ color: "red" }}>

@@ -12,6 +12,7 @@ import PaymentRequests from "./PaymentRequests";
 import RequestPayment from "./RequestPayment";
 import PendingPayments from "./PendingPayments";
 import HistoricalPayments from "./HistoricalPayments";
+import Bar from "./Bar.js";
 
 export default class AccountPage extends Component {
   constructor(props) {
@@ -135,7 +136,6 @@ export default class AccountPage extends Component {
   }
 
   handleTabChange = (event, newValue) => {
-    
     this.setState({
       window: newValue,
     });
@@ -145,7 +145,7 @@ export default class AccountPage extends Component {
     this.setState({
       transactions: new_trans,
     });
-  }
+  };
 
   renderWindow = () => {
     switch (this.state.window) {
@@ -158,31 +158,49 @@ export default class AccountPage extends Component {
           user_weight: this.state.user_weight,
           med_threshold: this.state.account_details.thresholds.med_threshold,
         };
-        return <RequestPayment details={details} GetAccountDetails={this.GetAccountDetails}/>;
+        return (
+          <RequestPayment
+            details={details}
+            GetAccountDetails={this.GetAccountDetails}
+          />
+        );
       case 2:
         var details = {
           user_publicKey: this.state.user_publicKey,
           user_weight: this.state.user_weight,
-          med_threshold: this.state.account_details.thresholds.med_threshold
+          med_threshold: this.state.account_details.thresholds.med_threshold,
         };
-        return (<PaymentRequests requests={this.state.transactions}
-         details={details} updateRequests={this.updateRequests}/>);
+        return (
+          <PaymentRequests
+            requests={this.state.transactions}
+            details={details}
+            updateRequests={this.updateRequests}
+          />
+        );
       case 3:
         var details = {
           user_publicKey: this.state.user_publicKey,
           user_weight: this.state.user_weight,
-          med_threshold: this.state.account_details.thresholds.med_threshold
+          med_threshold: this.state.account_details.thresholds.med_threshold,
         };
-        return (<PendingPayments requests={this.state.transactions}
-          details={details} />);
+        return (
+          <PendingPayments
+            requests={this.state.transactions}
+            details={details}
+          />
+        );
       case 4:
         var details = {
           user_publicKey: this.state.user_publicKey,
           user_weight: this.state.user_weight,
-          med_threshold: this.state.account_details.thresholds.med_threshold
+          med_threshold: this.state.account_details.thresholds.med_threshold,
         };
-        return (<HistoricalPayments requests={this.state.transactions}
-          details={details} />);
+        return (
+          <HistoricalPayments
+            requests={this.state.transactions}
+            details={details}
+          />
+        );
     }
   };
 
@@ -191,27 +209,30 @@ export default class AccountPage extends Component {
       return (
         <div>
           <Grid container alignItems="center" spacing={2}>
+            <Grid item xs={12}>
+              <Bar current="Stellar Account" />
+            </Grid>
             <Grid item xs={12} align="left">
               <Typography component="h3" variant="h3">
                 {this.state.account_name}
               </Typography>
             </Grid>
             <Grid item xs={12}>
-            <Paper style={{ flexGrow: 1 }}>
-              <Tabs
-                value={this.state.window}
-                onChange={this.handleTabChange}
-                indicatorColor="primary"
-                textColor="primary"
-                centered
-              >
-                <Tab label="Balances" />
-                <Tab label="Create Payment Request" />
-                <Tab label="Payment Requests" />
-                <Tab label="Pending Payments" />
-                <Tab label="Payment History" />
-              </Tabs>
-            </Paper>
+              <Paper style={{ flexGrow: 1 }}>
+                <Tabs
+                  value={this.state.window}
+                  onChange={this.handleTabChange}
+                  indicatorColor="primary"
+                  textColor="primary"
+                  centered
+                >
+                  <Tab label="Balances" />
+                  <Tab label="Create Payment Request" />
+                  <Tab label="Payment Requests" />
+                  <Tab label="Pending Payments" />
+                  <Tab label="Payment History" />
+                </Tabs>
+              </Paper>
             </Grid>
             {this.renderWindow()}
           </Grid>

@@ -19,6 +19,8 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
+import Bar from "./Bar.js";
+
 
 function Row(props) {
   const { row } = props;
@@ -91,7 +93,7 @@ export default class UserPage extends Component {
       username: "",
       accounts: [],
       AccountDataReturned: false,
-      redirect_link: ""
+      redirect_link: "",
     };
 
     this.GetUserDetails();
@@ -99,9 +101,9 @@ export default class UserPage extends Component {
   }
 
   GoTo(account_id) {
-      this.setState({
-          redirect_link: "/account/" + account_id
-      })
+    this.setState({
+      redirect_link: "/account/" + account_id,
+    });
   }
 
   async GetUserDetails() {
@@ -130,7 +132,7 @@ export default class UserPage extends Component {
         });
       }
 
-      console.log(accounts)
+      console.log(accounts);
 
       this.setState({
         name: data.user_details.name,
@@ -143,36 +145,33 @@ export default class UserPage extends Component {
 
   render() {
     if (this.state.redirect_link) {
-        return <Redirect to= {this.state.redirect_link} />;
-    }
-    else if (this.state.AccountDataReturned) {
+      return <Redirect to={this.state.redirect_link} />;
+    } else if (this.state.AccountDataReturned) {
       return (
         <div>
           <Grid container spacing={2}>
-            <Grid item xs={12} align="left">
-                <Typography component="h3" variant="h3">
-                    Dashboard
-                </Typography>
+            <Grid item xs={12}>
+              <Bar current="Dashboard"/>
             </Grid>
             <Grid item xs={12} align="left">
-                <Typography variant="subtitle1">
-                    Hello {this.state.name}!
-                </Typography>
+              <Typography variant="subtitle1">
+                Hello {this.state.name}!
+              </Typography>
             </Grid>
             <Grid item xs={12} align="center">
-                <Typography component="h4" variant="h4">
-                    Accounts
-                </Typography>
+              <Typography component="h4" variant="h4">
+                Accounts
+              </Typography>
             </Grid>
             <Grid item xs={12}>
               <TableContainer component={Paper}>
                 <Table aria-label="Requested-Transactions">
                   <TableHead>
                     <TableRow>
-                        <TableCell></TableCell>
-                        <TableCell align="left">Name</TableCell>
-                        <TableCell align="right">Time Last Modified</TableCell>
-                        <TableCell align="right">Go to</TableCell>
+                      <TableCell></TableCell>
+                      <TableCell align="left">Name</TableCell>
+                      <TableCell align="right">Time Last Modified</TableCell>
+                      <TableCell align="right">Go to</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
