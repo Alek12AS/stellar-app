@@ -9,7 +9,16 @@ import MenuIcon from "@material-ui/icons/Menu";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Link, Redirect } from "react-router-dom";
-
+import clsx from "clsx";
+import Drawer from "@material-ui/core/Drawer";
+import Divider from "@material-ui/core/Divider";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import HomeIcon from "@material-ui/icons/Home";
+import DashboardIcon from "@material-ui/icons/Dashboard";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,55 +30,87 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
+  list: {
+    width: 250,
+  },
 }));
 
 export default function (props) {
   const classes = useStyles();
   const { current } = props;
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [loggedin, setLoggedin] = React.useState(sessionStorage.getItem("stellar_keypair"));
+  const [loggedin, setLoggedin] = React.useState(
+    sessionStorage.getItem("stellar_keypair")
+  );
   const [logout, setLogout] = React.useState(false);
-  
+  const [drawer, setDrawer] = React.useState(false);
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleLogout = () => {
     sessionStorage.clear();
     setLogout(true);
+    setLoggedin(false);
   };
 
   const checkLogin = () => {
+    if (loggedin) {
+      return (
+        <Button color="inherit" onClick={handleLogout}>
+          Sign Out
+        </Button>
+      );
+    } else {
+      return (
+        <Button color="inherit" component={Link} to="/sign-in/">
+          Sign In
+        </Button>
+      );
+    }
+  };
 
-      if (loggedin) {
-        return(
-          <Button color="inherit" onClick={handleLogout}>Sign Out</Button>
-        );
-      } else {
-        return(
-          <Button color="inherit" component={Link} to="/sign-in/">Sign In</Button>
-        );
-      }
-      
-  
-  }
 
-
-
-  if (logout) {
-    return <Redirect to='/'  />
-  }
+  const list = () => (
+    <div
+      className={clsx(classes.list)}
+      role="presentation"
+      onClick={() => setDrawer(false)}
+      onKeyDown={() => setDrawer(false)}
+    >
+      <List>
+        <ListItem button component={Link} to="/">
+          <ListItemIcon>
+            <HomeIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Home"} />
+        </ListItem>
+      </List>
+      <Divider />
+      <List>
+        <ListItem button component={Link} to="/user/">
+          <ListItemIcon>
+            <DashboardIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Dashboard"} />
+        </ListItem>
+        <ListItem button component={Link} to="/create-account/">
+          <ListItemIcon>
+            <AddCircleIcon />
+          </ListItemIcon>
+          <ListItemText primary={"Create Stellar Account"} />
+        </ListItem>
+      </List>
+    </div>
+  );
 
   return (
     <React.Fragment>
+      {logout && <Redirect to="/" />}
       <AppBar position="static">
         <Toolbar>
           <IconButton
             edge="start"
             className={classes.menuButton}
-            onClick={(event) => setAnchorEl(event.currentTarget)}
+            onClick={() => setDrawer(true)}
             disabled={!loggedin}
             color="inherit"
             aria-label="menu"
@@ -82,17 +123,9 @@ export default function (props) {
           {checkLogin()}
         </Toolbar>
       </AppBar>
-      <Menu
-        id="simple-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        <MenuItem component={Link} to="/">Home</MenuItem>
-        <MenuItem component={Link} to="/user/">Dashboard</MenuItem>
-        <MenuItem component={Link} to="/create-account/">Create Stellar Account</MenuItem>
-      </Menu>
+      <Drawer anchor={"left"} open={drawer} onClose={() => setDrawer(false)}>
+        {list()}
+      </Drawer>
     </React.Fragment>
   );
 }

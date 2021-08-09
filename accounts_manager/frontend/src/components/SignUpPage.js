@@ -173,7 +173,7 @@ export default class SignUpPage extends Component {
                 onClick={this.handleCreateButtonPressed}
                 disabled={!this.validateForm()}
               >
-                Generate Keypair
+                Sign Up
               </Button>
             </Grid>
             <Grid item xs={12} align="center">

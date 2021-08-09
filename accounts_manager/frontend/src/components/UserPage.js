@@ -23,7 +23,7 @@ import Bar from "./Bar.js";
 
 
 function Row(props) {
-  const { row } = props;
+  const { row, redirect } = props;
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -46,7 +46,7 @@ function Row(props) {
           <IconButton
             aria-label="go-to"
             size="small"
-            onClick={() => this.GoTo(row.account_id)}
+            onClick={() => redirect(row.account_id)}
           >
             <ChevronRightIcon />
           </IconButton>
@@ -97,7 +97,7 @@ export default class UserPage extends Component {
     };
 
     this.GetUserDetails();
-    Row = Row.bind(this);
+    this.GoTo = this.GoTo.bind(this);
   }
 
   GoTo(account_id) {
@@ -176,7 +176,7 @@ export default class UserPage extends Component {
                   </TableHead>
                   <TableBody>
                     {this.state.accounts.map((t) => (
-                      <Row key={t.account_id} row={t} />
+                      <Row key={t.account_id} redirect={this.GoTo} row={t} />
                     ))}
                   </TableBody>
                 </Table>
