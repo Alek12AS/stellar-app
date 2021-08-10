@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import { Grid } from "@material-ui/core";
 import { CreateAccount } from "./tools";
-import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import ReactLoading from "react-loading";
 import SetAccountDetails from "./SetAccountDetails";
@@ -11,7 +9,7 @@ import ConfirmationPage from "./ConfirmationPage";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
-import Bar from "./Bar.js";
+import Bar from "../Bar.js";
 
 export default class CreateAccountPage extends Component {
   constructor(props) {

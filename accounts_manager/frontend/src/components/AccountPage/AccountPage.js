@@ -12,7 +12,7 @@ import PaymentRequests from "./PaymentRequests";
 import RequestPayment from "./RequestPayment";
 import PendingPayments from "./PendingPayments";
 import HistoricalPayments from "./HistoricalPayments";
-import Bar from "./Bar.js";
+import Bar from "../Bar.js";
 
 export default class AccountPage extends Component {
   constructor(props) {

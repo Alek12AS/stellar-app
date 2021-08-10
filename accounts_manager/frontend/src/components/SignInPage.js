@@ -31,6 +31,7 @@ export default class SignInPage extends Component {
       this.setState({
         name: e.target.value,
         UsernameError: "",
+        KeyError: ""
       });
     }
 
@@ -70,32 +71,30 @@ export default class SignInPage extends Component {
         this.setState({
           KeyError: "Key is missing from browser!",
         });
-      }
+      } else {
+        var plain_secret;
 
-      var plain_secret;
+        try {
+          plain_secret = sjcl.decrypt(this.state.pass, encry_secret);
 
-      try {
-        plain_secret = sjcl.decrypt(this.state.pass, encry_secret);
-      } catch (err) {
-        if ((err.message = "ccm: tag doesn't match")) {
-          this.setState({
-            PasswordError: "Wrong Password!",
+          let sessionStorage_content = JSON.stringify({
+            username: this.state.name,
+            public_key: data.public_key,
+            secret: plain_secret
           });
+  
+          sessionStorage.setItem("stellar_keypair", sessionStorage_content);
+
+          this.setState({
+            redirect: true,
+          });
+        } catch (err) {
+          if ((err.message = "ccm: tag doesn't match")) {
+            this.setState({
+              PasswordError: "Wrong Password!",
+            });
+          }
         }
-      }
-
-      const sessionStorage_content = JSON.stringify({
-        username: this.state.name,
-        public_key: data.public_key,
-        secret: plain_secret
-      });
-
-      sessionStorage.setItem("stellar_keypair", sessionStorage_content);
-
-      if (!this.state.UsernameError && !this.state.PasswordError) {
-        this.setState({
-          redirect: true,
-        });
       }
     }
   }

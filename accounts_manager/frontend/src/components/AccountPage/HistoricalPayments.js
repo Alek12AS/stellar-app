@@ -97,8 +97,6 @@ function Row(props) {
 export default function (props) {
     const { requests, details } = props;
 
-    console.log(requests)
-
     return (
         <React.Fragment>
           <Grid item xs={12} align="center">

@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { render } from "react-dom";
 import HomePage from "./HomePage";
 import UserPage from "./UserPage";
-import CreateAccountPage from "./CreateAccountPage";
-import AccountPage from "./AccountPage";
+import CreateAccountPage from "./CreateAccountPage/CreateAccountPage";
+import AccountPage from "./AccountPage/AccountPage";
 import SignUpPage from "./SignUpPage";
 import SignInPage from "./SignInPage";
 import {
