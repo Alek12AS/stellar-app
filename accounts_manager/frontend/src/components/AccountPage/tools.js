@@ -1,17 +1,36 @@
 /*
 Author: A.Apetrei
 
-*/ 
+Summary: 
+Contains helper functions for signing/rejecting transactions and for creating payment
+requests.
 
+*/ 
 
 import {Keypair, Server, TransactionBuilder, Networks, Operation, BASE_FEE, Asset} from "stellar-sdk";
 
 const server = new Server('https://horizon-testnet.stellar.org')
 
+
+/*
+function sleep(ms)
+
+Description: waits ms milliseconds before continuing program execution
+
+Parameters   : integer 
+
+*/
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/*
+function RequestToSign(code, user_publicKey, medium_threshold, weight)
+
+Description: Check if transaction is available to sign, i.e. it is not being handled by someone else, 
+if so it can sign the transaction otherwise it waits and tries again or gives up if the transaction cannot be signed.
+
+*/
 export async function RequestToSign(code, user_publicKey, medium_threshold, weight) {
     // post user details and transaction code to identify transaction
     var requestOptions = {
@@ -87,7 +106,12 @@ export async function RequestToSign(code, user_publicKey, medium_threshold, weig
 }
 
 
+/*
+function Sign(XDR, user_publicKey, medium_threshold, weight, total_signature_weight)
 
+Description: Sign the transaction and if the signatures add up to the threshold the transaction is submitted.
+
+*/
 export async function Sign(XDR, user_publicKey, medium_threshold, weight, total_signature_weight) {
     try {
         const transaction = TransactionBuilder.fromXDR(XDR, Networks.TESTNET);
@@ -110,7 +134,12 @@ export async function Sign(XDR, user_publicKey, medium_threshold, weight, total_
     
 }
 
+/*
+function RejectTransaction(code, user_publicKey)
 
+Description: Sign the transaction and if the signatures add up to the threshold the transaction is submitted.
+
+*/
 export function RejectTransaction(code, user_publicKey) {
     const requestOptions = {
         method: 'POST',
@@ -127,6 +156,12 @@ export function RejectTransaction(code, user_publicKey) {
     })
 }
 
+/*
+function CreateTransaction(account_id, user_publicKey, user_weight, destination, amount, asset_type, notes, completed)
+
+Description: Create a transaction request that other users can see
+
+*/
 export async function CreateTransaction(account_id, user_publicKey, user_weight, destination, 
     amount, asset_type, notes, completed) {
     const kp = Keypair.fromSecret(JSON.parse(sessionStorage.getItem("stellar_keypair")).secret);

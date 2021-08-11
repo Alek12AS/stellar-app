@@ -1,3 +1,11 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Class component that renders the the sign up page.
+
+*/
+
 import React, { Component } from "react";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
@@ -17,6 +25,7 @@ export default class SignUpPage extends Component {
       pass: "",
       confirmPass: "",
       browserError: "",
+      usernameError: "",
     };
 
     this.handleTextInput = this.handleTextInput.bind(this);
@@ -28,6 +37,7 @@ export default class SignUpPage extends Component {
     if (e.target.id == "Name-Input") {
       this.setState({
         name: e.target.value,
+        usernameError: ""
       });
     }
 
@@ -44,76 +54,96 @@ export default class SignUpPage extends Component {
     }
   }
 
-  handleCreateButtonPressed() {
-    const keypair = Keypair.random();
-    const pk = keypair.publicKey();
+  /*
+  function handleCreateButtonPressed()
 
-    console.log(pk);
-    console.log(keypair.secret());
+  Description: Generates stellar keypair stores them in the session storage and the local browser storage.
+  Before storing them in local storage the secret is encrypted using sjcl and the password given by the user.
 
-    const sessionStorage_content = JSON.stringify({
-      username: this.state.name,
-      public_key: pk,
-      secret: keypair.secret(),
-    });
+  */
+  async handleCreateButtonPressed() {
+    const response = await fetch(
+      "/api/check-username" + "?username=" + this.state.name
+    );
 
-    // Set the decrypted key in session storage to access account
-    try {
-      sessionStorage.setItem("stellar_keypair", sessionStorage_content);
-    } catch (err) {
+    if (response.status == 200) {
       this.setState({
-        browserError: err,
+        usernameError: "Username Taken!",
       });
-    }
+    } else if (response.status == 404) {
+      const keypair = Keypair.random();
+      const pk = keypair.publicKey();
 
-    // store keys in a list of keypair objects as a JSON string
+      console.log(pk);
+      console.log(keypair.secret());
 
-    // check if the JSON list already exists
-    if (localStorage.getItem("stellar_keypairs")) {
-      const content = JSON.parse(localStorage.getItem("stellar_keypairs"));
-      content.push({
+      const sessionStorage_content = JSON.stringify({
+        username: this.state.name,
         public_key: pk,
-        secret: sjcl.encrypt(this.state.pass, keypair.secret()),
+        secret: keypair.secret(),
       });
 
+      // Set the decrypted key in session storage to access account
       try {
-        localStorage.setItem("stellar_keypairs", JSON.stringify(content));
+        sessionStorage.setItem("stellar_keypair", sessionStorage_content);
       } catch (err) {
         this.setState({
           browserError: err,
         });
       }
-    } else {
-      const content_to_store = JSON.stringify([
-        {
+
+      // store keys in a list of keypair objects as a JSON string
+
+      // check if the JSON list already exists
+      if (localStorage.getItem("stellar_keypairs")) {
+        const content = JSON.parse(localStorage.getItem("stellar_keypairs"));
+        content.push({
           public_key: pk,
           secret: sjcl.encrypt(this.state.pass, keypair.secret()),
-        },
-      ]);
-
-      try {
-        localStorage.setItem("stellar_keypairs", JSON.stringify(content_to_store));
-      } catch (err) {
-        this.setState({
-          browserError: err,
         });
+
+        try {
+          localStorage.setItem("stellar_keypairs", JSON.stringify(content));
+        } catch (err) {
+          this.setState({
+            browserError: err,
+          });
+        }
+      } else {
+        const content_to_store = JSON.stringify([
+          {
+            public_key: pk,
+            secret: sjcl.encrypt(this.state.pass, keypair.secret()),
+          },
+        ]);
+
+        try {
+          localStorage.setItem(
+            "stellar_keypairs",
+            JSON.stringify(content_to_store)
+          );
+        } catch (err) {
+          this.setState({
+            browserError: err,
+          });
+        }
       }
+
+      // post public key and username to store in api database
+
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: this.state.name,
+          public_key: pk,
+        }),
+      };
+
+      fetch("/api/create-user", requestOptions)
+        .then((response) => response.json())
+        .then((data) => this.props.history.push("/user/"));
     }
-
-    // post public key and username to store in api database
-
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: this.state.name,
-        public_key: pk,
-      }),
-    };
-
-    fetch("/api/create-user", requestOptions)
-      .then((response) => response.json())
-      .then((data) => this.props.history.push("/user/"));
   }
 
   validateForm() {
@@ -140,6 +170,8 @@ export default class SignUpPage extends Component {
                   required={true}
                   id="Name-Input"
                   label="Username"
+                  helperText={this.state.usernameError}
+                  error={this.state.usernameError}
                   onChange={this.handleTextInput}
                 />
               </FormControl>

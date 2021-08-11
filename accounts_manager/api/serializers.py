@@ -1,3 +1,9 @@
+
+# Author: A.Apetrei
+
+# Summary: 
+# Contains all serializers required for fetching and sending data to the api.
+
 from rest_framework import serializers
 from .models import Account, AccountUser, Transaction
 

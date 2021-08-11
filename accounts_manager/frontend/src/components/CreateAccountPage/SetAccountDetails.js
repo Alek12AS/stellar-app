@@ -1,7 +1,14 @@
-import React, { Component } from "react";
+/*
+Author: A.Apetrei
+
+Summary: 
+Functional class component to handle the account related input, such as the name and thresholds.
+
+*/
+
+import React from "react";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import Typography from "@material-ui/core/Typography";
 
 export default function (props) {
     const { numbersModified, nameModified } = props;

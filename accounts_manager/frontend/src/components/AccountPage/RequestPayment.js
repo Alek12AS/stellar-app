@@ -1,3 +1,11 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Functional components that render form for user to request a payment.
+
+*/
+
 import React, { useState } from "react";
 import { Grid } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";

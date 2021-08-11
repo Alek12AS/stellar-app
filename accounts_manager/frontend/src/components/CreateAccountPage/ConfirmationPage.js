@@ -1,6 +1,13 @@
-import React, { Component } from "react";
+/*
+Author: A.Apetrei
+
+Summary: 
+React functional component to display a confirmation page before the user proceeds to create the account.
+
+*/
+
+import React from "react";
 import { Grid } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";

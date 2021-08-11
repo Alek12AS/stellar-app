@@ -1,3 +1,11 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Class component that renders the the sign in page.
+
+*/
+
 import React, { Component } from "react";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
@@ -23,7 +31,7 @@ export default class SignInPage extends Component {
 
     this.handleTextInput = this.handleTextInput.bind(this);
     this.SignInButtonPressed = this.SignInButtonPressed.bind(this);
-    this.validateForm = this.validateForm.bind(this);
+
   }
 
   handleTextInput(e) {
@@ -43,6 +51,13 @@ export default class SignInPage extends Component {
     }
   }
 
+  /*
+  function SignInButtonPressed()
+
+  Description: Checks if all the information required is valid, i.e. username, password and the presence of the keypair, and
+  if all is good the user is signed in.
+
+  */
   async SignInButtonPressed() {
     const response = await fetch(
       "/api/check-username" + "?username=" + this.state.name
@@ -97,14 +112,6 @@ export default class SignInPage extends Component {
         }
       }
     }
-  }
-
-  validateForm() {
-    return (
-      this.state.pass.length > 0 &&
-      this.state.pass == this.state.confirmPass &&
-      this.state.name.length > 0
-    );
   }
 
   render() {

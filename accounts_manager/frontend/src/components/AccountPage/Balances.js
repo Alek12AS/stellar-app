@@ -1,3 +1,11 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Functional component to display the account balances.
+
+*/
+
 import React from "react";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -9,6 +17,12 @@ import { Grid } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 
+/*
+  default function
+
+  Description: Displays the account balances in a table.
+
+  */
 export default function (props) {
   const { balances } = props;
 

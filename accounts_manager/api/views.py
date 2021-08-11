@@ -1,3 +1,9 @@
+
+# Author: A.Apetrei
+
+# Summary: 
+# Contains all the api views to handle api related tasks for the app.
+
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -7,6 +13,12 @@ from .serializers import *
 from .models import Account, AccountUser, Transaction
 
 
+
+# class GetUserDetails(APIView)
+
+# Description: Returns information about the user including the username and associated accounts.
+
+  
 class GetUserDetails(APIView):
     serializer_class = AccountUserSerializer
     lookup_url_kwarg = 'public_key'
@@ -31,6 +43,10 @@ class GetUserDetails(APIView):
         
         return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
 
+# class getPublicKey(APIView)
+
+# Description: Returns the public key of a user in return for the username provided
+
 class getPublicKey(APIView):
     serializer_class = AccountUserSerializer
     lookup_url_kwarg = 'username'
@@ -47,6 +63,10 @@ class getPublicKey(APIView):
             return Response({ 'User Not Found': 'Invalid Public Key. '}, status=status.HTTP_404_NOT_FOUND)
         
         return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
+
+# class getTransactions(APIView)
+
+# Description: Obtains all the transactions associated with a particular account.
 
 class getTransactions(APIView):
     serializer_class = TransactionSerializer
@@ -83,6 +103,10 @@ class getTransactions(APIView):
         
         return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
 
+# class getAccountDetails(APIView)
+
+# Description: Returns the details of a particular account including the name and creation time
+
 class getAccountDetails(APIView):
 
     serializer_class = AccountSerializer
@@ -103,8 +127,11 @@ class getAccountDetails(APIView):
         return Response({'Bad Request': 'Code parameter not found in request'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+# class CreateUserView(APIView)
 
-class CreateKeysView(APIView):
+# Description: Created a user in the database.
+
+class CreateUserView(APIView):
     
     serializer_class = AccountUserSerializer
 
@@ -122,6 +149,10 @@ class CreateKeysView(APIView):
             return Response(AccountUserSerializer(user).data, status=status.HTTP_201_CREATED)
 
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+# class CreateAccountView(APIView)
+
+# Description: Created an account in the database.
 
 class CreateAccountView(APIView):
     serializer_class = AccountSerializer
@@ -144,6 +175,10 @@ class CreateAccountView(APIView):
             return Response(AccountSerializer(account).data, status=status.HTTP_201_CREATED)
         print(serializer.data)
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
+
+# class RequestToSign(APIView)
+
+# Description: Handles a sign request. If available the transaction is returned in XDR format.
 
 class RequestToSign(APIView):
 
@@ -175,6 +210,10 @@ class RequestToSign(APIView):
 
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+# class TransactionSigned(APIView)
+
+# Description: Receives a signed transaction and updates the database.
+
 class TransactionSigned(APIView):
 
     def post(self, request, format=None):
@@ -202,6 +241,10 @@ class TransactionSigned(APIView):
 
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+# class MakeTransactionAvailableToSign(APIView)
+
+# Description: Makes transaction available to sign by setting the variable available_to_sign to true.
+
 class MakeTransactionAvailableToSign(APIView):
 
     def post(self, request, format=None):
@@ -213,7 +256,9 @@ class MakeTransactionAvailableToSign(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
+# class RejectTransaction(APIView)
 
+# Description: Adds a user to the list of users who rejected the corresponding transaction.
 
 class RejectTransaction(APIView):
 
@@ -231,6 +276,10 @@ class RejectTransaction(APIView):
             return Response(status=status.HTTP_202_ACCEPTED)
 
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+# class CreateTransaction(APIView)
+
+# Description: Creates a transaction in the database.
 
 class CreateTransaction(APIView):
 

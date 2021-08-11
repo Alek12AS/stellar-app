@@ -1,7 +1,14 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Class component that renders the home page which informs the user about the app.
+
+*/
+
 import React, { Component } from "react";
 import { Grid } from "@material-ui/core";
 import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import Bar from "./Bar.js";
 

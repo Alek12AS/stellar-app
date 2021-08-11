@@ -1,7 +1,13 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Components that render the user dashboard, displaying a table of the accounts that the user is associated with.
+
+*/
+
 import { Grid } from "@material-ui/core";
-import Button from "@material-ui/core/Button";
 import React, { Component } from "react";
-import { Link } from "react-router";
 import ReactLoading from "react-loading";
 import { Redirect } from "react-router-dom";
 import { Server } from "stellar-sdk";
@@ -106,6 +112,13 @@ export default class UserPage extends Component {
     });
   }
 
+  /*
+  function GetUserDetails()
+
+  Description: Obtains the accounts that the user is associated with from the API and information about the accounts
+  from the stellar API.
+
+  */
   async GetUserDetails() {
     const pk = JSON.parse(sessionStorage.getItem("stellar_keypair")).public_key;
 

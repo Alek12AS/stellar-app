@@ -1,3 +1,11 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Main class component that handles most of the account creation tasks
+
+*/
+
 import React, { Component } from "react";
 import { Grid } from "@material-ui/core";
 import { CreateAccount } from "./tools";
@@ -64,6 +72,12 @@ export default class CreateAccountPage extends Component {
     }
   }
 
+  /*
+  function CreateAccount()
+
+  Description: handles the account creation by calling the CreateAccount function from the tools file.
+
+  */
   CreateAccount() {
     this.setState({
       loading: true,
@@ -102,6 +116,12 @@ export default class CreateAccountPage extends Component {
     return this.state.account_name.length > 0;
   }
 
+  /*
+  function getStepContent()
+
+  Description: Returns the appropriate content for each step in the account creation process.
+
+  */
   getStepContent() {
     switch (this.state.activeStep) {
       case 0:

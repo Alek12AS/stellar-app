@@ -1,3 +1,9 @@
+
+# Author: A.Apetrei
+
+# Summary: 
+# Contains all the models required for the app database.
+
 from django.db import models
 import string, random
 
@@ -10,7 +16,7 @@ def generate_unique_code():
     return code
             
 
-# Create your models here.
+
 class Account(models.Model):
     name = models.CharField(max_length=100, default="Default Name")
     public_key = models.CharField(max_length=56, default='', unique=True)

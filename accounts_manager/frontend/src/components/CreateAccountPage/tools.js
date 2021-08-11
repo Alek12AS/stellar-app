@@ -1,12 +1,21 @@
 /*
 Author: A.Apetrei
 
-*/ 
+Summary: 
+Contains helper functions for creating a stellar account.
+
+*/
 
 import {Keypair, Server, TransactionBuilder, Networks, Operation} from "stellar-sdk";
 
 const server = new Server('https://horizon-testnet.stellar.org')
 
+/*
+function CreateAccount(creator, userList, low_thresh, med_thresh, high_thresh, account_name)
+
+Description: Creates a stellar account.
+
+*/
 export async function CreateAccount(creator, userList, low_thresh, med_thresh, high_thresh, account_name) {
 
     const userListpk = [];
@@ -80,7 +89,12 @@ export async function CreateAccount(creator, userList, low_thresh, med_thresh, h
     return masterKeypair.publicKey();
 }
 
+/*
+function sendAccountToApi(masterPK, usernameList, account_name)
 
+Description: Sends the account details to the api to store them in the database.
+
+*/
 async function sendAccountToApi(masterPK, usernameList, account_name) {
 
     const requestOptions = {

@@ -1,3 +1,12 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Functional components to display payments which have already been signed or rejected by the user but are not
+completed yet.
+
+*/
+
 import React from "react";
 import Paper from "@material-ui/core/Paper";
 import IconButton from "@material-ui/core/IconButton";

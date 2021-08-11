@@ -1,8 +1,15 @@
+/*
+Author: A.Apetrei
+
+Summary: 
+Contains the main class component that handles the display of the account content.
+
+*/
+
 import React, { Component } from "react";
 import { Server } from "stellar-sdk";
 import Typography from "@material-ui/core/Typography";
 import { Grid } from "@material-ui/core";
-import { RequestToSign, RejectTransaction, CreateTransaction } from "./tools";
 import ReactLoading from "react-loading";
 import Paper from "@material-ui/core/Paper";
 import Tabs from "@material-ui/core/Tabs";
@@ -54,6 +61,13 @@ export default class AccountPage extends Component {
     clearInterval(this.intervalID);
   }
 
+  /*
+  function verifySigner()
+
+  Description: Checks if the user currently logged in is part of the group of signers before displaying
+  the content.
+
+  */
   verifySigner() {
     // Find out which public key is in the localstorage in order to display appropriate content for this user
     if (sessionStorage.getItem("stellar_keypair")) {
@@ -73,6 +87,12 @@ export default class AccountPage extends Component {
     return false;
   }
 
+  /*
+  function GetAccountDetails()
+
+  Description: Fetches all the account details from the APIs.
+
+  */
   async GetAccountDetails() {
     const server = new Server(this.state.server);
     await server.loadAccount(this.state.account_id).then((account) => {
