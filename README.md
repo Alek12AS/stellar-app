@@ -4,3 +4,5 @@ Dapp built on the stellar network which allows for shared ownership accounts, ma
 Users can register and create any number of accounts to which they can add users and their weights as well as the account's weight threshold values. A payment, for instance, comes under the medium weight threshold and in order to authenticate the transaction the weights of the users which sign the transaction should add up to the medium threshold value. 
 
 To find out more about multi-signature please follow this link https://developers.stellar.org/docs/glossary/multisig/.
+
+To try it out first navigate to accounts_manager and run python manage.py runserver. In another console navigate to frontend and run npm run dev.
